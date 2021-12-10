@@ -56,7 +56,8 @@ export default function FooterComponent(props) {
         axios(config)
             .then(response => {
                 var description = response.data["data"]
-                navigation.navigate('task', { desc: description, mail: mail,name:name });
+                var TaskData=response.data["populator"]
+                navigation.navigate('task', { desc: description, mail: mail,name:name ,taskdata:TaskData});
             })
             .catch(function (error) {
                 console.log(error);
@@ -68,25 +69,25 @@ export default function FooterComponent(props) {
                 <View style={[styles.sbox, styles.fcol]}>
                     <TouchableOpacity style={styles.footerbtn} onPressIn={Home}>
                         <Icon name='home' type='material' color='#263238' size={40}  />
-                        <Text>Home</Text>
+                       
                     </TouchableOpacity>
                 </View>
                 <View style={[styles.sbox, styles.fcol]}>
                     <TouchableOpacity style={styles.footerbtn} onPressIn={task}>
                         <Icon name='assignment' type='material' color='#263238' size={40} />
-                        <Text>Task</Text>
+                       
                     </TouchableOpacity>
                 </View>
                 <View style={[styles.sbox, styles.fcol]}>
                     <TouchableOpacity style={styles.footerbtn} onPressIn={events}>
                         <Icon name='today' type='material' color='#263238' size={40} />
-                        <Text>Meeting</Text>
+                        
                     </TouchableOpacity>
                 </View>
                 <View style={[styles.sbox, styles.fcol]}>
                     <TouchableOpacity style={styles.footerbtn} onPressIn={news}>
                         <Icon name='newspaper' type='ionicon' color='#263238' size={40} />
-                        <Text>News</Text>
+                        
                     </TouchableOpacity>
                 </View>
             </View>

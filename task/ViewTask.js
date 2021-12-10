@@ -13,29 +13,19 @@ import { verticalAlign } from "styled-system";
 export default function ViewTask({ route, navigation, props }) {
     const bootstrapStyle = new BootstrapStyleSheet();
     const description = route.params["desc"];
+    const TaskData=route.params["taskdata"];
     const [tabIndex,setTabIndex]=useState("");
     const { image } = { uri: "https://cutewallpaper.org/21/abstract-background-hd/light-grey-abstract-background-hd-cool-7-2-Tiffany-Hayes-.jpg" };
     const { s } = bootstrapStyle;
     const mail = route.params["mail"];
     const name = route.params["name"];
     const newTask = () => {
-        navigation.navigate('task-profile', { name: name, mail: mail });
+        navigation.navigate('task-create', { name: name, mail: mail });
     }
-   if(tabIndex===0){
-    console.log(description['activeTask']);
-   }
-   else if(tabIndex===1){
-    console.log("Urgent");
-   }
-   else if(tabIndex===2){
-    console.log("Backlogs");
-   }
-   else if(tabIndex===3){
-    console.log("Future");
-   }
+   
     const onsubmit = (index) => {
         const id = index;
-        console.log(id);
+        console.log("the post id is:"+id);
         const data = JSON.stringify({
             "obji": id
         });
@@ -57,21 +47,30 @@ export default function ViewTask({ route, navigation, props }) {
             })
     }
 
-
-    const ActiveTask = Object.keys(description["activeTask"][0]).map((key, index) => (
-        <View>
-            <TouchableOpacity  key={index} onPress={() => onsubmit(description["activeTask"][0][key])}>
-            <View style={styles.LowPrior}>
+    function checkPriority(taskDescription, priority) {
+        if (priority === "high") {
+            return highPriorityTask(taskDescription, priority)
+        }
+        else if (priority === "medium") {
+            return mediumPriorityTask(taskDescription, priority)
+        }
+        else {
+            return lowPriorityTask(taskDescription, priority)
+        }
+    }
+    const lowPriorityTask=(taskDescription, priority)=>{
+        return(
+        <View style={styles.LowPrior}>
                 <View style={styles.footerRow} >
                     <Icon
                         name='sticky-note-2'
                         type='material'
-                        color='#1C6A00'
+                        color='#000'
                         size={28}
                         style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
                     />
                     <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>{key}</Text>
+                        <Text style={styles.ltext}>{taskDescription}</Text>
 
                     </View>
                     <View style={[styles.sbox, styles.fcol]} >
@@ -83,18 +82,18 @@ export default function ViewTask({ route, navigation, props }) {
                     <Icon
                         name='sticky-note-2'
                         type='material'
-                        color='#1C6A00'
+                        color='#000'
                         size={20}
                         style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
                     />
                     <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
+                        <Text style={styles.stext}>{priority}</Text>
 
                     </View>
                     <Icon
                         name='sticky-note-2'
                         type='material'
-                        color='#1C6A00'
+                        color='#000'
                         size={20}
                         style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
                     />
@@ -104,7 +103,7 @@ export default function ViewTask({ route, navigation, props }) {
                     <Icon
                         name='sticky-note-2'
                         type='material'
-                        color='#1C6A00'
+                        color='#000'
                         size={20}
                         style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
                     />
@@ -113,590 +112,150 @@ export default function ViewTask({ route, navigation, props }) {
                     </View>
                 </View>
             </View>
-            
-            {/* <View style={styles.highPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>Tasks to be done</Text>
-
+        );
+    }
+    const highPriorityTask=(taskDescription,priority)=>{
+        return(
+            <View style={styles.highPrior}>
+                    <View style={styles.footerRow} >
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={28}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.ltext}>{taskDescription}</Text>
+    
+                        </View>
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.ltext1}>Full Details</Text>
+                        </View>
+    
                     </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
+                    <View style={styles.footerRow} >
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>{priority}</Text>
+    
+                        </View>
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>Teacher</Text>
+                        </View>
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>Satuarday</Text>
+                        </View>
                     </View>
-
                 </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Sunday</Text>
-                    </View>
-                </View>
-            </View>
+            );
+    }
+    const mediumPriorityTask=(taskDescription,priority)=>{
+        return(
             <View style={styles.MidPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>Tasks to be done</Text>
-
+                    <View style={styles.footerRow} >
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={28}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.ltext}>{taskDescription}</Text>
+    
+                        </View>
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.ltext1}>Full Details</Text>
+                        </View>
+    
                     </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
+                    <View style={styles.footerRow} >
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>{priority}</Text>
+    
+                        </View>
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>Teacher</Text>
+                        </View>
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>Satuarday</Text>
+                        </View>
                     </View>
-
                 </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                </View>
-            </View> */}
+            );
+    }
+    const ActiveTask = Object.keys(TaskData["activeTaskID"][0]).map((key, index) => (
+        
+        <TouchableOpacity  key={index} onPress={() => onsubmit(key)}>
+            <View>   
+                {checkPriority(TaskData["activeTaskID"][0][key][3],TaskData["activeTaskID"][0][key][0])}
+        </View>
+        </TouchableOpacity>
+    ));
+    const  UrgentTask= Object.keys(TaskData["urgentTaskID"][0]).map((key, index) => (
+        <View>
+            <TouchableOpacity  key={index} onPress={() => onsubmit(key)}>
+            {checkPriority(TaskData["urgentTaskID"][0][key][3],TaskData["urgentTaskID"][0][key][0])}
             </TouchableOpacity>
         </View>
-        // <TouchableOpacity style={styles.feeditem} key={index} onPress={() => onsubmit(description[key])}>
-        //     <View style={styles.footerRow} >
-
-        //         <Icon
-        //             raised
-        //             name='adjust'
-        //             type='font-awesome'
-        //             color='#18aefa'
-        //         />
-        //         <View style={[styles.sbox, styles.fcol]} >
-        //             <Text style={styles.ltext}>{key}</Text>
-        //         </View>
-        //     </View>
-        // </TouchableOpacity>
+        
     ))
-    const  UrgentTask= Object.keys(description["urgentTask"][0]).map((key, index) => (
+    const  BacklogsTask= Object.keys(TaskData["backlogTaskID"][0]).map((key, index) => (
         <View>
-            <TouchableOpacity  key={index} onPress={() => onsubmit(description["urgentTask"][0][key])}>
-            <View style={styles.LowPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>{key}</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
-                    </View>
-
-                </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Satuarday</Text>
-                    </View>
-                </View>
-            </View>
-            
-            {/* <View style={styles.highPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>Tasks to be done</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
-                    </View>
-
-                </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Sunday</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={styles.MidPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>Tasks to be done</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
-                    </View>
-
-                </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                </View>
-            </View> */}
+            <TouchableOpacity  key={index} onPress={() => onsubmit(key)}>
+            {checkPriority(TaskData["backlogTaskID"][0][key][3],TaskData["backlogTaskID"][0][key][0])}
             </TouchableOpacity>
         </View>
-        // <TouchableOpacity style={styles.feeditem} key={index} onPress={() => onsubmit(description[key])}>
-        //     <View style={styles.footerRow} >
-
-        //         <Icon
-        //             raised
-        //             name='adjust'
-        //             type='font-awesome'
-        //             color='#18aefa'
-        //         />
-        //         <View style={[styles.sbox, styles.fcol]} >
-        //             <Text style={styles.ltext}>{key}</Text>
-        //         </View>
-        //     </View>
-        // </TouchableOpacity>
     ))
-    const  BacklogsTask= Object.keys(description["backlogTask"][0]).map((key, index) => (
+    const  FutureTask= Object.keys(TaskData["futureTaskID"][0]).map((key, index) => (
         <View>
-            <TouchableOpacity  key={index} onPress={() => onsubmit(description["backlogTask"][0][key])}>
-            <View style={styles.LowPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>{key}</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
-                    </View>
-
-                </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Satuarday</Text>
-                    </View>
-                </View>
-            </View>
-            
-            {/* <View style={styles.highPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>Tasks to be done</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
-                    </View>
-
-                </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Sunday</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={styles.MidPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>Tasks to be done</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
-                    </View>
-
-                </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                </View>
-            </View> */}
+            <TouchableOpacity  key={index} onPress={() => onsubmit(key)}>
+            {checkPriority(TaskData["futureTaskID"][0][key][3],TaskData["futureTaskID"][0][key][0])}
             </TouchableOpacity>
         </View>
-        // <TouchableOpacity style={styles.feeditem} key={index} onPress={() => onsubmit(description[key])}>
-        //     <View style={styles.footerRow} >
-
-        //         <Icon
-        //             raised
-        //             name='adjust'
-        //             type='font-awesome'
-        //             color='#18aefa'
-        //         />
-        //         <View style={[styles.sbox, styles.fcol]} >
-        //             <Text style={styles.ltext}>{key}</Text>
-        //         </View>
-        //     </View>
-        // </TouchableOpacity>
-    ))
-    const  FutureTask= Object.keys(description["futureTask"][0]).map((key, index) => (
-        <View>
-            <TouchableOpacity  key={index} onPress={() => onsubmit(description["futureTask"][0][key])}>
-            <View style={styles.LowPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>{key}</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
-                    </View>
-
-                </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Satuarday</Text>
-                    </View>
-                </View>
-            </View>
-            
-            {/* <View style={styles.highPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>Tasks to be done</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
-                    </View>
-
-                </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Sunday</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={styles.MidPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>Tasks to be done</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
-                    </View>
-
-                </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#1C6A00'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Low Importance</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                </View>
-            </View> */}
-            </TouchableOpacity>
-        </View>
-        // <TouchableOpacity style={styles.feeditem} key={index} onPress={() => onsubmit(description[key])}>
-        //     <View style={styles.footerRow} >
-
-        //         <Icon
-        //             raised
-        //             name='adjust'
-        //             type='font-awesome'
-        //             color='#18aefa'
-        //         />
-        //         <View style={[styles.sbox, styles.fcol]} >
-        //             <Text style={styles.ltext}>{key}</Text>
-        //         </View>
-        //     </View>
-        // </TouchableOpacity>
+      
     ))
     return (
         <View style={[s.body, styles.container]}>
@@ -743,16 +302,7 @@ export default function ViewTask({ route, navigation, props }) {
                                 </ScrollView>
                     </TabView.Item>
                 </TabView>
-                {/* <ScrollView >
-                    <View >
-                        <View>
-                            <ScrollView style={{ flex: 1, height: 700 }}>
-                                {x}
-                            </ScrollView>
-                        </View>
-                    </View>
-                    <FAB title="+" placement="right" size="large" color="#18aefa" style={{ marginRight: 40 }} onPress={newTask} />
-                </ScrollView> */}
+                
                     <FAB title="+" placement="right" size="large" color="#18aefa" style={{ marginRight: 40 }} onPress={newTask} />
             </View>
             <View >
@@ -901,19 +451,19 @@ const styles = StyleSheet.create({
         marginTop: "0.5%",
     },
     ltext: {
-        color: "#000",
+        
         marginTop: 15,
         fontSize: 18,
         marginLeft:5,
         fontWeight:"600",
-        color:"#1C6A00"
+        color:"#000"
     },
     stext: {
         marginTop: 15,
         fontSize: 12,
         marginLeft:5,
         fontWeight:"600",
-        color:"#1C6A00"
+        color:"#000"
     },
     midstext:{
         marginTop: 15,
@@ -944,7 +494,7 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginLeft:"40%",
         fontWeight:"600",
-        color:"#1C6A00",
+        color:"#000",
         textDecorationLine: "underline",
 
     },

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, TextInput, ScrollView, TouchableOpacity,RefreshControl } from 'react-native';
 import StepIndicator from 'react-native-step-indicator';
 import Swiper from 'react-native-swiper';
 import { Divider, Icon, Avatar } from 'react-native-elements';
@@ -8,8 +8,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import TaskCreated from './TaskCreated';
 import HeadderComponent from '../component/headder/LeftComponent';
 import FooterComponent from '../component/footer/FooterComponent';
+import Dialog from "react-native-dialog";
+import axios from 'axios';
 const PAGES = [<TaskCreated />, 'task started', 'task finished', 'task approved',];
-
+const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  }
 const firstIndicatorStyles = {
     stepIndicatorSize: 30,
     currentStepIndicatorSize: 40,
@@ -119,13 +123,12 @@ const getStepIndicatorIconConfig = (
 export default function TaskProfile(props) {
     const [currentPage, setCurrentPage] = useState(0);
     const name = props.route.params["name"];
-    const email = props.route.params["mail"];
-    console.log("name is:"+name);
-    console.log("email is:"+email);
-    const onStepPress = (position) => {
-        setCurrentPage(position);
-    };
-
+    const email = props.route.params["mailId"];
+    const taskid = props.route.params["taskID"];
+    const [visible, SetVisible] = useState(false);
+    const [refreshing, setRefreshing] = React.useState(false);
+    const [datas,setDatas]=useState(props.route.params["cInput"]);
+    console.log("task assigned by:"+datas["task assigned by"]);
     const renderViewPagerPage = (data) => {
         return (
             <View key={data} style={styles.page}>
@@ -155,12 +158,247 @@ export default function TaskProfile(props) {
             </Text>
         );
     };
+    const Reporting_name = datas["task assigned by"];
+    var nameReplace = Reporting_name.replace(/@.*$/, "");
+    var Reportingname = nameReplace !== Reporting_name ? nameReplace : null;
 
-    return (
-        <View style={{backgroundColor:"#fff"}}>
-            <HeadderComponent name={name} mail={email}/>
-            <SafeAreaView style={{height:700,top:"-5.7%"}}>
+    const Assigned_by = datas["task assigned by"];
+    var nameReplaceAssign = Assigned_by.replace(/@.*$/, "");
+    var Assignedname = nameReplaceAssign !== Assigned_by ? nameReplace : null;
+    console.log("task assigned by"+datas["task assigned by"]);
+    console.log(Assigned_by);
+    var SubmitbtnVal = "";
+    var sbtbtn = "";
+    var approveBtn = "";
+    var theView = "";
+    const onsubmit = () => {
+        let messages = "";
+        console.log("submit btn value is:" + SubmitbtnVal);
+        if (SubmitbtnVal === "Start Task") {
+            messages = "Update Task Status"
+        }
+        else if (SubmitbtnVal === "Finish Task") {
+            messages = "Pending Approval"
+        }
+        else if (SubmitbtnVal === "Approved") {
+            messages = "Approved"
+        }
+        else {
+            messages = "Update Task Status"
+        }
+        const data = JSON.stringify({
+            "objid": taskid,
+            "message": messages,
+            "key": "task status"
+        });
+        var config = {
+            method: 'POST',
+            url: 'http://192.168.0.100:5001/edit',
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Origin': 'null'
+            },
+            data: data
+        };
+
+        axios(config)
+            .then(response => {
+                SetVisible(true);
+                setDatas(response.data["json"]);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+    const approval = (btnval) => {
+        const btnvalue = btnval;
+        const data = JSON.stringify({
+            "objid": taskid,
+            "message": btnvalue,
+            "key": "task status"
+        });
+        var config = {
+            method: 'POST',
+            url: 'http://192.168.0.100:5001/edit',
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Origin': 'null'
+            },
+            data: data
+        };
+
+        axios(config)
+            .then(response => {
+                SetVisible(true);
+                setDatas(response.data["json"]);
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+    const refresh=React.useCallback(() => {
+        setRefreshing(true);
+        wait(2000).then(() => setRefreshing(false));
+    }, []);
+    const close = () => {
+        SetVisible(false);
+        refresh();
+    }
+    if (datas["task status"] === "Start Task") {
+        SubmitbtnVal = "Start Task";
+        theView = <SafeAreaView style={{ height: 700, top: "-5.7%", marginBottom: "5%" }}>
+            <View style={styles.container}>
+                <View>
+                    <Dialog.Container visible={visible}>
+                        <Dialog.Title>Task Status Updated</Dialog.Title>
+                        <Dialog.Description>
+                            Your Status has updated Successfully.
+                        </Dialog.Description>
+                        <Dialog.Button label="close" onPress={close} />
+                    </Dialog.Container>
+                </View>
+                <View style={styles.headerContainer}>
+                    <View style={{ left: 125 }}>
+                        <Icon
+                            name='edit'
+                            type='material'
+                            color='#1976D2'
+
+                        />
+                    </View>
+                    <Text style={styles.title}>Task profile</Text>
+
+                </View>
+                <Divider orientation="horizontal" style={{ top: 40 }} />
+                <View style={styles.stepIndicator}>
+                    <StepIndicator
+                        customStyles={firstIndicatorStyles}
+                        currentPosition={currentPage}
+
+                        labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
+                        stepCount={4}
+
+                        renderStepIndicator={(stepPosition, stepStatus) => {
+                            renderStepIndicator(stepPosition, stepStatus);
+                        }}
+
+                    />
+                </View>
+                <View style={{ height: 450, top: -50 }}>
+                    <ScrollView style={{ height: 500 }}>
+
+
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 15 }}>
+                                <Icon
+                                    name='person-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleOne}>Designation</Text>
+
+                            <View style={{ left: 112, top: 15 }}>
+                                <Icon
+                                    name='insert-chart-outlined'
+                                    type='material'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleTwo}>Reporting To</Text>
+
+
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 15, top: 30 }}>
+                                <TextInput placeholder="Teacher" style={styles.input} value={datas["task type"]}></TextInput>
+                            </View>
+                            <View style={{ left: 25, top: 30 }}>
+                                <TextInput placeholder="Ch.Madhuri" style={styles.input} value={Assignedname}></TextInput>
+                            </View>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 55 }}>
+                                <Icon
+                                    name='newspaper-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleThree}>Task Description</Text>
+                        </View>
+                        <View style={{ left: 15, top: 80 }}>
+                            <TextInput placeholder="Enter Task Description Here" style={styles.inputTwo} numberOfLines={10}
+                                multiline={true} value={datas["task description"]}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 80 }}>
+                                <Icon
+                                    name='edit'
+                                    type='material'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleFour}>Task Priority</Text>
+                        </View>
+                        <View style={{ left: 15, top: 105 }}>
+                            <TextInput placeholder="Urgent" style={styles.inputThree} value={datas["task priority"]}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 100 }}>
+                                <Icon
+                                    name='person-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleFive}>Assigned By</Text>
+                        </View>
+                        <View style={{ left: 15, top: 125 }}>
+                            <TextInput placeholder="Employee name" style={styles.inputThree} value={Reportingname}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 125 }}>
+                                <Icon
+                                    name='calendar'
+                                    type='entypo'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleSix}>Task Deadline</Text>
+                        </View>
+                        <View style={{ left: 15, top: 149 }}>
+                            <TextInput placeholder="Task DeadSLine" style={styles.inputThree} value={datas["task deadline"]}></TextInput>
+                        </View>
+
+
+                    </ScrollView>
+                </View>
+                <View>
+                    <TouchableOpacity style={styles.loginBtn} onPress={onsubmit}>
+                        <Text style={styles.loginText} >{SubmitbtnVal}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </SafeAreaView>;
+    }
+    else if (datas["task status"] === "Pending Approval") {
+        SubmitbtnVal = "Pending Approval";
+        theView =
+            <SafeAreaView style={{ height: 700, top: "-5.7%", marginBottom: "5%" }}>
                 <View style={styles.container}>
+                <View>
+                    <Dialog.Container visible={visible}>
+                        <Dialog.Title>Task Status Updated</Dialog.Title>
+                        <Dialog.Description>
+                            Your Status has updated Successfully.
+                        </Dialog.Description>
+                        <Dialog.Button label="close" onPress={close} />
+                    </Dialog.Container>
+                </View>
                     <View style={styles.headerContainer}>
                         <View style={{ left: 125 }}>
                             <Icon
@@ -185,24 +423,810 @@ export default function TaskProfile(props) {
                             renderStepIndicator={(stepPosition, stepStatus) => {
                                 renderStepIndicator(stepPosition, stepStatus);
                             }}
-                            onPress={onStepPress}
+
                         />
                     </View>
+                    <View style={{ height: 450, top: -50 }}>
+                        <ScrollView style={{ height: 500 }}>
 
-                    <Swiper
-                        style={{ flexGrow: 1 }}
-                        loop={false}
-                        index={currentPage}
-                        autoplay={false}
-                        showsButtons
-                        onIndexChanged={(page) => {
-                            setCurrentPage(page);
-                        }}
-                    >
-                        {PAGES.map((page) => renderViewPagerPage(page))}
-                    </Swiper>
+
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 15 }}>
+                                    <Icon
+                                        name='person-outline'
+                                        type='ionicon'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleOne}>Designation</Text>
+
+                                <View style={{ left: 112, top: 15 }}>
+                                    <Icon
+                                        name='insert-chart-outlined'
+                                        type='material'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleTwo}>Reporting To</Text>
+
+
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 15, top: 30 }}>
+                                    <TextInput placeholder="Teacher" style={styles.input} value={datas["task type"]}></TextInput>
+                                </View>
+                                <View style={{ left: 25, top: 30 }}>
+                                    <TextInput placeholder="Ch.Madhuri" style={styles.input} value={Assignedname}></TextInput>
+                                </View>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 55 }}>
+                                    <Icon
+                                        name='newspaper-outline'
+                                        type='ionicon'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleThree}>Task Description</Text>
+                            </View>
+                            <View style={{ left: 15, top: 80 }}>
+                                <TextInput placeholder="Enter Task Description Here" style={styles.inputTwo} numberOfLines={10}
+                                    multiline={true} value={datas["task description"]}></TextInput>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 80 }}>
+                                    <Icon
+                                        name='edit'
+                                        type='material'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleFour}>Task Priority</Text>
+                            </View>
+                            <View style={{ left: 15, top: 105 }}>
+                                <TextInput placeholder="Urgent" style={styles.inputThree} value={datas["task priority"]}></TextInput>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 100 }}>
+                                    <Icon
+                                        name='person-outline'
+                                        type='ionicon'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleFive}>Assigned By</Text>
+                            </View>
+                            <View style={{ left: 15, top: 125 }}>
+                                <TextInput placeholder="Employee name" style={styles.inputThree} value={Reportingname}></TextInput>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 125 }}>
+                                    <Icon
+                                        name='calendar'
+                                        type='entypo'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleSix}>Task Deadline</Text>
+                            </View>
+                            <View style={{ left: 15, top: 149 }}>
+                                <TextInput placeholder="Task DeadSLine" style={styles.inputThree} value={datas["task deadline"]}></TextInput>
+                            </View>
+
+
+                        </ScrollView>
+                    </View>
+                    <View>
+                        <TouchableOpacity style={styles.loginBtn} disabled={true}>
+                            <Text style={styles.loginText} >{SubmitbtnVal}</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </SafeAreaView>
+            </SafeAreaView>;
+    }
+    else if (datas["task status"] === "Approved") {
+        SubmitbtnVal = "Task Approved";
+        theView = <SafeAreaView style={{ height: 700, top: "-5.7%", marginBottom: "5%" }}>
+            <View style={styles.container}>
+                <View style={styles.headerContainer}>
+                    <View style={{ left: 125 }}>
+                        <Icon
+                            name='edit'
+                            type='material'
+                            color='#1976D2'
+
+                        />
+                    </View>
+                    <Text style={styles.title}>Task profile</Text>
+
+                </View>
+                <Divider orientation="horizontal" style={{ top: 40 }} />
+                <View style={styles.stepIndicator}>
+                    <StepIndicator
+                        customStyles={firstIndicatorStyles}
+                        currentPosition={currentPage}
+
+                        labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
+                        stepCount={4}
+
+                        renderStepIndicator={(stepPosition, stepStatus) => {
+                            renderStepIndicator(stepPosition, stepStatus);
+                        }}
+
+                    />
+                </View>
+                <View style={{ height: 450, top: -50 }}>
+                    <ScrollView style={{ height: 500 }}>
+
+
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 15 }}>
+                                <Icon
+                                    name='person-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleOne}>Designation</Text>
+
+                            <View style={{ left: 112, top: 15 }}>
+                                <Icon
+                                    name='insert-chart-outlined'
+                                    type='material'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleTwo}>Reporting To</Text>
+
+
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 15, top: 30 }}>
+                                <TextInput placeholder="Teacher" style={styles.input} value={datas["task type"]}></TextInput>
+                            </View>
+                            <View style={{ left: 25, top: 30 }}>
+                                <TextInput placeholder="Ch.Madhuri" style={styles.input} value={Assignedname}></TextInput>
+                            </View>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 55 }}>
+                                <Icon
+                                    name='newspaper-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleThree}>Task Description</Text>
+                        </View>
+                        <View style={{ left: 15, top: 80 }}>
+                            <TextInput placeholder="Enter Task Description Here" style={styles.inputTwo} numberOfLines={10}
+                                multiline={true} value={datas["task description"]}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 80 }}>
+                                <Icon
+                                    name='edit'
+                                    type='material'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleFour}>Task Priority</Text>
+                        </View>
+                        <View style={{ left: 15, top: 105 }}>
+                            <TextInput placeholder="Urgent" style={styles.inputThree} value={datas["task priority"]}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 100 }}>
+                                <Icon
+                                    name='person-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleFive}>Assigned By</Text>
+                        </View>
+                        <View style={{ left: 15, top: 125 }}>
+                            <TextInput placeholder="Employee name" style={styles.inputThree} value={Reportingname}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 125 }}>
+                                <Icon
+                                    name='calendar'
+                                    type='entypo'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleSix}>Task Deadline</Text>
+                        </View>
+                        <View style={{ left: 15, top: 149 }}>
+                            <TextInput placeholder="Task DeadSLine" style={styles.inputThree} value={datas["task deadline"]}></TextInput>
+                        </View>
+
+
+                    </ScrollView>
+                </View>
+                <View>
+                    <TouchableOpacity style={styles.loginBtn} disabled={true}>
+                        <Text style={styles.loginText} >{SubmitbtnVal}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </SafeAreaView>;
+    }
+    else if (datas["task status"] === "Update Task Status") {
+        SubmitbtnVal = "Finish Task";
+        theView = <SafeAreaView style={{ height: 700, top: "-5.7%", marginBottom: "5%" }}>
+            <View style={styles.container}>
+                <View>
+                    <Dialog.Container visible={visible}>
+                        <Dialog.Title>Task Status Updated</Dialog.Title>
+                        <Dialog.Description>
+                            Your Status has updated Successfully.
+                        </Dialog.Description>
+                        <Dialog.Button label="close" onPress={close} />
+                    </Dialog.Container>
+                </View>
+                <View style={styles.headerContainer}>
+                    <View style={{ left: 125 }}>
+                        <Icon
+                            name='edit'
+                            type='material'
+                            color='#1976D2'
+
+                        />
+                    </View>
+                    <Text style={styles.title}>Task profile</Text>
+
+                </View>
+                <Divider orientation="horizontal" style={{ top: 40 }} />
+                <View style={styles.stepIndicator}>
+                    <StepIndicator
+                        customStyles={firstIndicatorStyles}
+                        currentPosition={currentPage}
+
+                        labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
+                        stepCount={4}
+
+                        renderStepIndicator={(stepPosition, stepStatus) => {
+                            renderStepIndicator(stepPosition, stepStatus);
+                        }}
+
+                    />
+                </View>
+                <View style={{ height: 450, top: -50 }}>
+                    <ScrollView style={{ height: 500 }}>
+
+
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 15 }}>
+                                <Icon
+                                    name='person-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleOne}>Designation</Text>
+
+                            <View style={{ left: 112, top: 15 }}>
+                                <Icon
+                                    name='insert-chart-outlined'
+                                    type='material'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleTwo}>Reporting To</Text>
+
+
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 15, top: 30 }}>
+                                <TextInput placeholder="Teacher" style={styles.input} value={datas["task type"]}></TextInput>
+                            </View>
+                            <View style={{ left: 25, top: 30 }}>
+                                <TextInput placeholder="Ch.Madhuri" style={styles.input} value={Assignedname}></TextInput>
+                            </View>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 55 }}>
+                                <Icon
+                                    name='newspaper-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleThree}>Task Description</Text>
+                        </View>
+                        <View style={{ left: 15, top: 80 }}>
+                            <TextInput placeholder="Enter Task Description Here" style={styles.inputTwo} numberOfLines={10}
+                                multiline={true} value={datas["task description"]}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 80 }}>
+                                <Icon
+                                    name='edit'
+                                    type='material'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleFour}>Task Priority</Text>
+                        </View>
+                        <View style={{ left: 15, top: 105 }}>
+                            <TextInput placeholder="Urgent" style={styles.inputThree} value={datas["task priority"]}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 100 }}>
+                                <Icon
+                                    name='person-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleFive}>Assigned By</Text>
+                        </View>
+                        <View style={{ left: 15, top: 125 }}>
+                            <TextInput placeholder="Employee name" style={styles.inputThree} value={Reportingname}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 125 }}>
+                                <Icon
+                                    name='calendar'
+                                    type='entypo'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleSix}>Task Deadline</Text>
+                        </View>
+                        <View style={{ left: 15, top: 149 }}>
+                            <TextInput placeholder="Task DeadSLine" style={styles.inputThree} value={datas["task deadline"]}></TextInput>
+                        </View>
+
+
+                    </ScrollView>
+                </View>
+                <View>
+                    <TouchableOpacity style={styles.loginBtn} onPress={onsubmit}>
+                        <Text style={styles.loginText} >{SubmitbtnVal}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </SafeAreaView>;
+    }
+    else if (datas["task status"] === "Task Completed Successfully") {
+        SubmitbtnVal = "Task Completed";
+        theView = <SafeAreaView style={{ height: 700, top: "-5.7%", marginBottom: "5%" }}>
+            <View style={styles.container}>
+                <View style={styles.headerContainer}>
+                    <View style={{ left: 125 }}>
+                        <Icon
+                            name='edit'
+                            type='material'
+                            color='#1976D2'
+
+                        />
+                    </View>
+                    <Text style={styles.title}>Task profile</Text>
+
+                </View>
+                <Divider orientation="horizontal" style={{ top: 40 }} />
+                <View style={styles.stepIndicator}>
+                    <StepIndicator
+                        customStyles={firstIndicatorStyles}
+                        currentPosition={currentPage}
+
+                        labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
+                        stepCount={4}
+
+                        renderStepIndicator={(stepPosition, stepStatus) => {
+                            renderStepIndicator(stepPosition, stepStatus);
+                        }}
+
+                    />
+                </View>
+                <View style={{ height: 450, top: -50 }}>
+                    <ScrollView style={{ height: 500 }}>
+
+
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 15 }}>
+                                <Icon
+                                    name='person-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleOne}>Designation</Text>
+
+                            <View style={{ left: 112, top: 15 }}>
+                                <Icon
+                                    name='insert-chart-outlined'
+                                    type='material'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleTwo}>Reporting To</Text>
+
+
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 15, top: 30 }}>
+                                <TextInput placeholder="Teacher" style={styles.input} value={datas["task type"]}></TextInput>
+                            </View>
+                            <View style={{ left: 25, top: 30 }}>
+                                <TextInput placeholder="Ch.Madhuri" style={styles.input} value={Assignedname}></TextInput>
+                            </View>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 55 }}>
+                                <Icon
+                                    name='newspaper-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleThree}>Task Description</Text>
+                        </View>
+                        <View style={{ left: 15, top: 80 }}>
+                            <TextInput placeholder="Enter Task Description Here" style={styles.inputTwo} numberOfLines={10}
+                                multiline={true} value={datas["task description"]}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 80 }}>
+                                <Icon
+                                    name='edit'
+                                    type='material'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleFour}>Task Priority</Text>
+                        </View>
+                        <View style={{ left: 15, top: 105 }}>
+                            <TextInput placeholder="Urgent" style={styles.inputThree} value={datas["task priority"]}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 100 }}>
+                                <Icon
+                                    name='person-outline'
+                                    type='ionicon'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleFive}>Assigned By</Text>
+                        </View>
+                        <View style={{ left: 15, top: 125 }}>
+                            <TextInput placeholder="Employee name" style={styles.inputThree} value={Reportingname}></TextInput>
+                        </View>
+                        <View style={styles.headerContainer}>
+                            <View style={{ left: 25, top: 125 }}>
+                                <Icon
+                                    name='calendar'
+                                    type='entypo'
+                                    color='grey'
+                                />
+                            </View>
+                            <Text style={styles.titleSix}>Task Deadline</Text>
+                        </View>
+                        <View style={{ left: 15, top: 149 }}>
+                            <TextInput placeholder="Task DeadSLine" style={styles.inputThree} value={datas["task deadline"]}></TextInput>
+                        </View>
+
+
+                    </ScrollView>
+                </View>
+                <View>
+                    <TouchableOpacity style={styles.loginBtn} disabled={true}>
+                        <Text style={styles.loginText} >{SubmitbtnVal}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </SafeAreaView>;
+    }
+    else {
+        SubmitbtnVal = "Task Rejected";
+        theView =
+            <SafeAreaView style={{ height: 700, top: "-5.7%", marginBottom: "5%" }}>
+                <View style={styles.container}>
+                <View>
+                    <Dialog.Container visible={visible}>
+                        <Dialog.Title>Task Status Updated</Dialog.Title>
+                        <Dialog.Description>
+                            Your Status has updated Successfully.
+                        </Dialog.Description>
+                        <Dialog.Button label="close" onPress={close} />
+                    </Dialog.Container>
+                </View>
+                    <View style={styles.headerContainer}>
+                        <View style={{ left: 125 }}>
+                            <Icon
+                                name='edit'
+                                type='material'
+                                color='#1976D2'
+
+                            />
+                        </View>
+                        <Text style={styles.title}>Task profile</Text>
+
+                    </View>
+                    <Divider orientation="horizontal" style={{ top: 40 }} />
+                    <View style={styles.stepIndicator}>
+                        <StepIndicator
+                            customStyles={firstIndicatorStyles}
+                            currentPosition={currentPage}
+
+                            labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
+                            stepCount={4}
+
+                            renderStepIndicator={(stepPosition, stepStatus) => {
+                                renderStepIndicator(stepPosition, stepStatus);
+                            }}
+
+                        />
+                    </View>
+                    <View style={{ height: 450, top: -50 }}>
+                        <ScrollView style={{ height: 500 }}>
+
+
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 15 }}>
+                                    <Icon
+                                        name='person-outline'
+                                        type='ionicon'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleOne}>Designation</Text>
+
+                                <View style={{ left: 112, top: 15 }}>
+                                    <Icon
+                                        name='insert-chart-outlined'
+                                        type='material'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleTwo}>Reporting To</Text>
+
+
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 15, top: 30 }}>
+                                    <TextInput placeholder="Teacher" style={styles.input} value={datas["task type"]}></TextInput>
+                                </View>
+                                <View style={{ left: 25, top: 30 }}>
+                                    <TextInput placeholder="Ch.Madhuri" style={styles.input} value={Assignedname}></TextInput>
+                                </View>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 55 }}>
+                                    <Icon
+                                        name='newspaper-outline'
+                                        type='ionicon'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleThree}>Task Description</Text>
+                            </View>
+                            <View style={{ left: 15, top: 80 }}>
+                                <TextInput placeholder="Enter Task Description Here" style={styles.inputTwo} numberOfLines={10}
+                                    multiline={true} value={datas["task description"]}></TextInput>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 80 }}>
+                                    <Icon
+                                        name='edit'
+                                        type='material'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleFour}>Task Priority</Text>
+                            </View>
+                            <View style={{ left: 15, top: 105 }}>
+                                <TextInput placeholder="Urgent" style={styles.inputThree} value={datas["task priority"]}></TextInput>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 100 }}>
+                                    <Icon
+                                        name='person-outline'
+                                        type='ionicon'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleFive}>Assigned By</Text>
+                            </View>
+                            <View style={{ left: 15, top: 125 }}>
+                                <TextInput placeholder="Employee name" style={styles.inputThree} value={Reportingname}></TextInput>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 125 }}>
+                                    <Icon
+                                        name='calendar'
+                                        type='entypo'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleSix}>Task Deadline</Text>
+                            </View>
+                            <View style={{ left: 15, top: 149 }}>
+                                <TextInput placeholder="Task DeadSLine" style={styles.inputThree} value={datas["task deadline"]}></TextInput>
+                            </View>
+
+
+                        </ScrollView>
+                    </View>
+                    <View>
+                        <TouchableOpacity style={styles.loginBtn} onPress={onsubmit}>
+                            <Text style={styles.loginText} >{SubmitbtnVal}</Text>
+                        </TouchableOpacity>
+                        <Text style={{ color: "#ff0000" }}>Please press the button again to start the task</Text>
+                    </View>
+                </View>
+            </SafeAreaView>;
+    }
+
+    if (SubmitbtnVal === "Pending Approval" && (email === datas["task reporting to"] || email === datas["task assigned by"])) {
+
+        theView =
+            <SafeAreaView style={{ height: 700, top: "-5.7%", marginBottom: "5%", paddingBottom: 130 }}>
+                <View style={styles.container}>
+                    <View>
+                        <Dialog.Container visible={visible}>
+                            <Dialog.Title>Task Status Updated</Dialog.Title>
+                            <Dialog.Description>
+                                Your Status has updated Successfully.
+                            </Dialog.Description>
+                            <Dialog.Button label="close" onPress={close} />
+                        </Dialog.Container>
+                    </View>
+                    <View style={styles.headerContainer}>
+                        <View style={{ left: 125 }}>
+                            <Icon
+                                name='edit'
+                                type='material'
+                                color='#1976D2'
+
+                            />
+                        </View>
+                        <Text style={styles.title}>Task profile</Text>
+
+                    </View>
+                    <Divider orientation="horizontal" style={{ top: 40 }} />
+                    <View style={styles.stepIndicator}>
+                        <StepIndicator
+                            customStyles={firstIndicatorStyles}
+                            currentPosition={currentPage}
+
+                            labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
+                            stepCount={4}
+
+                            renderStepIndicator={(stepPosition, stepStatus) => {
+                                renderStepIndicator(stepPosition, stepStatus);
+                            }}
+
+                        />
+                    </View>
+                    <View style={{ height: 570, top: -50 }}>
+                        <ScrollView style={{ height: 700 }} refreshControl={
+                                <RefreshControl
+                                    refreshing={refreshing}
+                                />
+                                }>
+
+
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 15 }}>
+                                    <Icon
+                                        name='person-outline'
+                                        type='ionicon'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleOne}>Designation</Text>
+
+                                <View style={{ left: 112, top: 15 }}>
+                                    <Icon
+                                        name='insert-chart-outlined'
+                                        type='material'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleTwo}>Reporting To</Text>
+
+
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 15, top: 30 }}>
+                                    <TextInput placeholder="Teacher" style={styles.input} value={datas["task type"]}></TextInput>
+                                </View>
+                                <View style={{ left: 25, top: 30 }}>
+                                    <TextInput placeholder="Ch.Madhuri" style={styles.input} value={Assignedname}></TextInput>
+                                </View>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 55 }}>
+                                    <Icon
+                                        name='newspaper-outline'
+                                        type='ionicon'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleThree}>Task Description</Text>
+                            </View>
+                            <View style={{ left: 15, top: 80 }}>
+                                <TextInput placeholder="Enter Task Description Here" style={styles.inputTwo} numberOfLines={10}
+                                    multiline={true} value={datas["task description"]}></TextInput>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 80 }}>
+                                    <Icon
+                                        name='edit'
+                                        type='material'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleFour}>Task Priority</Text>
+                            </View>
+                            <View style={{ left: 15, top: 105 }}>
+                                <TextInput placeholder="Urgent" style={styles.inputThree} value={datas["task priority"]}></TextInput>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 100 }}>
+                                    <Icon
+                                        name='person-outline'
+                                        type='ionicon'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleFive}>Assigned By</Text>
+                            </View>
+                            <View style={{ left: 15, top: 125 }}>
+                                <TextInput placeholder="Employee name" style={styles.inputThree} value={Reportingname}></TextInput>
+                            </View>
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 125 }}>
+                                    <Icon
+                                        name='calendar'
+                                        type='entypo'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleSix}>Task Deadline</Text>
+                            </View>
+                            <View style={{ left: 15, top: 149 }}>
+                                <TextInput placeholder="Task DeadSLine" style={styles.inputThree} value={datas["task deadline"]}></TextInput>
+                            </View>
+
+                            <View style={styles.headerContainer}>
+                                <View style={{ left: 25, top: 145 }}>
+                                    <Icon
+                                        name='newspaper-outline'
+                                        type='ionicon'
+                                        color='grey'
+                                    />
+                                </View>
+                                <Text style={styles.titleSeven}>Comment For Rejection</Text>
+                            </View>
+                            <View style={{ left: 15, top: 165 }}>
+                                <TextInput placeholder="Enter Task Description Here" style={styles.inputTwo} numberOfLines={10}
+                                    multiline={true} ></TextInput>
+                            </View>
+                            <View>
+                        <View style={styles.bottonContainer}>
+                            <TouchableOpacity style={styles.AcceptBtn} onPress={() => approval("Approved")}>
+                                <Text style={styles.loginText} >Accept</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.RejectBtn} onPress={() => approval("Rejected")}>
+                                <Text style={styles.loginText} >Reject</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                        </ScrollView>
+                    </View>
+                    
+                </View>
+            </SafeAreaView>;
+    }
+
+    return (
+        <View style={{ backgroundColor: "#fff" }}>
+            {theView}
             <View >
                 <FooterComponent email={email} name={name}></FooterComponent>
             </View>
@@ -222,6 +1246,43 @@ const styles = StyleSheet.create({
         flex: 1,
 
     },
+    loginBtn: {
+        width: 305,
+        borderRadius: 15,
+        height: 50,
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 0,
+        backgroundColor: "#1976D2",
+        marginLeft: 56,
+        paddingRight: 10
+    },
+    AcceptBtn: {
+        width: 189,
+        borderRadius: 15,
+        height: 50,
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 0,
+        backgroundColor: "#91bf80",
+        marginLeft: 5,
+        paddingRight: 10
+    },
+    RejectBtn: {
+        width: 189,
+        borderRadius: 15,
+        height: 50,
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 0,
+        backgroundColor: "#eb614d",
+        marginLeft: 20,
+        paddingRight: 10
+    },
+    loginText: {
+        color: "#ffff",
+        textAlign: "center"
+    },
     stepLabel: {
         fontSize: 12,
         textAlign: 'center',
@@ -230,7 +1291,12 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         flexDirection: 'row',
-        top: 25
+        top: 15
+    },
+    bottonContainer: {
+        flexDirection: 'row',
+        top: 200,
+        marginBottom:200
     },
     title: {
         color: '#1976D2',
@@ -245,4 +1311,86 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#4aae4f',
     },
+
+    titleOne: {
+        color: 'grey',
+        fontSize: 15,
+        top: 18,
+        left: 32
+
+
+    },
+    titleTwo: {
+        color: 'grey',
+        fontSize: 15,
+        top: 17,
+        left: 122
+
+
+    },
+    titleThree: {
+        color: 'grey',
+        fontSize: 15,
+        top: 59,
+        left: 35
+
+
+    },
+    titleFour: {
+        color: 'grey',
+        fontSize: 15,
+        top: 84,
+        left: 30
+
+
+    },
+    titleFive: {
+        color: 'grey',
+        fontSize: 15,
+        top: 105,
+        left: 30
+
+
+    },
+    titleSix: {
+        color: 'grey',
+        fontSize: 15,
+        top: 130,
+        left: 30
+
+
+    },
+    titleSeven: {
+        color: 'grey',
+        fontSize: 15,
+        top: 150,
+        left: 35
+
+
+    },
+    input: {
+        height: 40,
+        borderRadius: 10,
+        width: 189,
+        borderWidth: 1,
+        borderColor: 'grey',
+        padding: 20,
+    },
+    inputTwo: {
+        height: 90,
+        borderRadius: 10,
+        width: 384,
+        borderWidth: 1,
+        borderColor: 'grey',
+        padding: 10,
+    },
+    inputThree: {
+        height: 40,
+        borderRadius: 10,
+        width: 384,
+        borderWidth: 1,
+        borderColor: 'grey',
+        padding: 20,
+    },
+
 });

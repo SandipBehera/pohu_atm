@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, Keyboard, TouchableOpacity,ScrollView } from 'react-native'
 import { Card, ListItem, Button, Icon, Input } from 'react-native-elements'
 import HeadderComponent from "../component/headder/LeftComponent";
@@ -7,8 +6,35 @@ import DocumentPicker from 'react-native-document-picker';
 import FooterComponent from "../component/footer/FooterComponent";
 import { width } from "styled-system";
 export default function HomeWorkComponent(props) {
-    const name = props.route.params["name"];
-    const email = props.route.params["mail"];
+    const [singleFile, setSingleFile] = useState(null);
+    const uploadImage = async () => {
+        // Check if any file is selected or not
+        if (singleFile != null) {
+          // If file selected then create FormData
+          const fileToUpload = singleFile;
+          const data = new FormData();
+          data.append('name', 'Image Upload');
+          data.append('file_attachment', fileToUpload);
+          // Please change file upload URL
+          let res = await fetch(
+            'http://localhost/upload.php',
+            {
+              method: 'post',
+              body: data,
+              headers: {
+                'Content-Type': 'multipart/form-data; ',
+              },
+            }
+          );
+          let responseJson = await res.json();
+          if (responseJson.status == 1) {
+            alert('Upload Successful');
+          }
+        } else {
+          // If no file selected the show alert
+          alert('Please Select File first');
+        }
+      };
     const selectFile = async () => {
         // Opening Document Picker to select one file
         try {
@@ -41,22 +67,21 @@ export default function HomeWorkComponent(props) {
       };
     return (
         <View style={[styles.container]}>
-            <HeadderComponent name={name} mail={email} />
             <ScrollView>
             <Card style={{ borderTopLeftRadius: 20, paddingLeft: 1 }}>
                 <Card.Title style={{ textAlign: "left", alignItems: "flex-start", fontSize: 20 }}>Class Work</Card.Title>
                 <Card.Divider />
                 <View style={{ height: 120, marginBottom: 30 }} >
-                    <Text style={{ marginBottom: 30 }}>Please update what has been taught in the said class</Text>
                     <Input
-                        placeholder='Comments Please!!!!'
-                        onScroll={() => Keyboard.dismiss()}
-                        leftIcon={
-                            <Icon
-                                type='font-awesome'
-                                name='user'
-                                size={24}
-                                color='black'
+                       placeholder='Enter your questions !!!'
+                       onScroll={() => Keyboard.dismiss()}
+                       leftIcon={
+                           <Icon
+                               type='font-awesome'
+                               name='question-circle'
+                               size={22}
+                               color='#1976D2'
+                               style={{marginTop:7}}
                             />
                         }
                         style={{ textAlignVertical: "auto", textAlign: "left", lineHeight: 30, width: 440 }}
@@ -74,46 +99,9 @@ export default function HomeWorkComponent(props) {
                     </TouchableOpacity>
 
                 </View>
+                
             </Card>
-            <Card style={{ borderTopLeftRadius: 20, paddingLeft: 1 }}>
-                <Card.Title style={{ textAlign: "left", alignItems: "flex-start", fontSize: 20 }}>Home Work</Card.Title>
-                <Card.Divider />
-                <View style={{ height: 120, marginBottom: 30 }} >
-                    <Text style={{ marginBottom: 30 }}>Please update what thing to at home</Text>
-                    <Input
-                        placeholder='Comments Please!!!!'
-                        onScroll={() => Keyboard.dismiss()}
-                        leftIcon={
-                            <Icon
-                                type='font-awesome'
-                                name='user'
-                                size={24}
-                                color='black'
-                            />
-                        }
-                        style={{ textAlignVertical: "auto", textAlign: "left", lineHeight: 30, width: 440 }}
-                        multiline={true}
-                    />
-
-                </View>
-                <View style={{ height: 120, marginBottom: 30 }} >
-                    <Text style={{ marginBottom: 10 }}>Please upload the Documents taught in the said class</Text>
-                    <TouchableOpacity
-                       style={{width:350,borderRadius: 1,height: 50,alignItems: "center",justifyContent: "center",marginTop: 40,backgroundColor: "#420fbf"}}
-                        activeOpacity={0.5}
-                        onPress={selectFile}
-                        
-                        >
-                        <Text style={styles.loginText}>Upload File</Text>
-                    </TouchableOpacity>
-
-                </View>
-            </Card>
-            <TouchableOpacity  style={styles.loginBtn}  >
-                            <Text style={styles.loginText}>Submit</Text>
-                        </TouchableOpacity>
             </ScrollView>
-            <FooterComponent email={email} name={name}></FooterComponent>
         </View>
     )
 }

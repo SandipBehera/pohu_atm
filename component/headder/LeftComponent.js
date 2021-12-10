@@ -22,21 +22,10 @@ const HeadderComponent = (props) => {
   };
   return (
     <View style={{ flexDirection: 'row', height: 100, paddingTop: 40 }}>
-      {/* <Drawer
-        ref={ innerRef }
-        content={<Sidebar />}
-        onClose={() => this.closeDrawer()} >
-        <Button transparent
-          onPress={openDrawer.bind(this)}
-        >
-          <Icon name='menu' />
-        </Button>
-      </Drawer> */}
       <TouchableOpacity 
        style={{marginLeft:20,alignContent:'center',alignSelf:'center'}}
        onPress={()=>{
         navigation.navigate('sidebar');
-        //  openDrawer(); 
       }}
         >
       <Icon name='menu' size={40} />
@@ -53,25 +42,6 @@ const HeadderComponent = (props) => {
         inputContainerStyle={{backgroundColor:"white"}}
       />
         </View>
-        {/* <TouchableOpacity
-          onPress={() => {
-            //this.props.navigation.navigate('DrawerOpen');
-            console.log(email)
-            navigation.navigate('qr-scanner',{name:name,mail:email});
-          }}>
-          <Icon name='qr-code-outline' type='ionicon' color='#000' size={30} />
-        </TouchableOpacity>
-      </View> */}
-      {/* <View style={{ alignItems: "flex-end", alignContent: 'flex-end', alignSelf: 'center', marginLeft: 10 }}>
-        <TouchableOpacity
-          onPress={() => {
-            //this.props.navigation.navigate('DrawerOpen');
-            props.navigation.openDrawer();
-          }}>
-          <Icon name='notifications' type='material' color='#000' size={30} />
-        </TouchableOpacity>
-      </View> */}
-
     </View>
   );
 }

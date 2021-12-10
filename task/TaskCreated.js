@@ -90,9 +90,13 @@ const styles = StyleSheet.create({
 
 
 const TaskCreated = (props) => {
+    const name=props.route.params["name"];
+    const mail=props.route.params["mail"];
     return (
         <View>
-           
+           <View>
+                <HeadderComponent name={name} />
+            </View>
         <SafeAreaView >
               
             <View>
@@ -185,7 +189,9 @@ const TaskCreated = (props) => {
 
 
             </View>
-            
+            <View >
+                <FooterComponent email={mail} name={name}></FooterComponent>
+            </View>
         </SafeAreaView>
            
             </View>

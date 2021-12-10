@@ -5,6 +5,7 @@ import HeadderComponent from "../component/headder/LeftComponent";
 import FooterComponent from "../component/footer/FooterComponent";
 import { Card, ListItem, Icon,FAB,Tab, TabView} from 'react-native-elements';
 import axios from 'axios';
+import HomeWorkComponent from '../task/homework';
 export default function StudentAttendanceComponent({ route, navigation, props }) {
 
     // constructor(props) {
@@ -143,7 +144,7 @@ export default function StudentAttendanceComponent({ route, navigation, props })
                     </View>
                 </TabView.Item>
                 <TabView.Item style={{ backgroundColor: 'blue', width: '100%' }}>
-                        <Text>hi</Text>
+                        <HomeWorkComponent></HomeWorkComponent>
                     </TabView.Item>
                     <TabView.Item style={{ backgroundColor: 'green', width: '100%' }}>
                         <Text>hello</Text>

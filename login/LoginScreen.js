@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Image, StyleSheet, TextInput, TouchableOpacity, Text, Dimensions } from "react-native";
+import { View, Image, StyleSheet, TextInput, TouchableOpacity, Text, Dimensions, SafeAreaView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import axios from 'axios';
 import ViewTask from "../task/ViewTask";
@@ -110,6 +110,7 @@ const LoginScreen = ({ navigation, props }) => {
   }
   return (
     <View style={styles.container} >
+      <SafeAreaView>
       <View style={{ marginTop: -13 }}>
         <ImageBackground source={require('../assets/login_back.png')} resizeMode="contain" style={styles.image}>
         </ImageBackground>
@@ -164,6 +165,7 @@ const LoginScreen = ({ navigation, props }) => {
           <Text style={styles.googelText} >Continue with Google</Text>
         </TouchableOpacity>
       </View>
+      </SafeAreaView>
     </View>
   );
 }

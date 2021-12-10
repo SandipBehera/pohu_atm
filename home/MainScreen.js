@@ -1,41 +1,18 @@
 import React from "react";
-import { View, Image, StyleSheet, TextInput, TouchableOpacity, Text, ImageBackground, ScrollView, FlatList, TouchableHighlight } from "react-native";
-import { StatusBar } from "expo-status-bar";
+import { View, StyleSheet, TouchableOpacity, Text, ImageBackground, ScrollView} from "react-native";
 import axios from 'axios';
-import BootstrapStyleSheet from 'react-native-bootstrap-styles';
-import { background, backgroundColor, boxShadow, height, marginTop, width } from "styled-system";
-import { Center } from "native-base";
-import { ThemeProvider, Button, Avatar, Input } from "@react-navigation/native";
-import { Header } from "react-native-elements/dist/header/Header";
-import Sidebar from "../component/headder/LeftComponent";
+import { Avatar } from "@react-navigation/native";
 import HeadderComponent from "../component/headder/LeftComponent";
 import FooterComponent from "../component/footer/FooterComponent";
-import { Card, ListItem, Icon,FAB ,Divider} from 'react-native-elements';
-
+import { Card,Icon} from 'react-native-elements';
+import { SafeAreaView } from "react-native-safe-area-context";
 export default function MainScreen({ route, navigation, props, isExtended, setIsExtended }) {
-    const navigationOptions = {
-        drawerLabel: 'MainScreen',
-    }
-    const theme = {
-        Button: {
-            raised: true,
-        },
-        container: {
-            flex: 1,
-            backgroundColor: '#000000',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        backgroundColor: "#000000"
-
-    }
-    const bootstrapStyle = new BootstrapStyleSheet();
-
+    var Menubg = require('../assets/Menubg.png');
     const name = route.params["name"];
     const mail = route.params["mail"];
     console.log(mail);
     const description = route.params["desc"];
-    const { image } = { uri: "https://cutewallpaper.org/21/abstract-background-hd/light-grey-abstract-background-hd-cool-7-2-Tiffany-Hayes-.jpg" };
+    
    
 
     const x = Object.keys(description).map((key, index) => (
@@ -75,14 +52,14 @@ export default function MainScreen({ route, navigation, props, isExtended, setIs
         axios(config)
             .then(response => {
                 var description = response.data["data"]
-                navigation.navigate('task', { desc: description, mail: mail ,name:name});
+                var TaskData=response.data["populator"]
+                navigation.navigate('task', { desc: description, mail: mail ,name:name,taskdata:TaskData});
             })
             .catch(function (error) {
                 console.log(error);
             });
     }
     const onQR=()=>{
-            // navigation.navigate('qr-scanner',{ mail: mail ,name:name});
             const datas = JSON.stringify({
                 "data": "b9355707-0fb2-464f-bc87-a5fa3ff1bc15"
             });
@@ -111,17 +88,13 @@ export default function MainScreen({ route, navigation, props, isExtended, setIs
             
     
     return (
-
+   
         <View style={styles.container}>
             <View>
                 <HeadderComponent name={name} mail={mail}/>
             </View>
                 <ScrollView style={{marginTop:1}}> 
-                    <Card style={{borderTopLeftRadius:20,paddingLeft:1}}>
-                        <Card.Title style={{textAlign:"left",alignItems:"flex-start",fontSize:20}}>Notice</Card.Title>
-                        <Card.Divider />
-                        {x}
-                    </Card>
+                    
                     <Card style={styles.section}>
                         <View style={styles.row}>
                             <View style={[styles.box]}>
@@ -165,41 +138,12 @@ export default function MainScreen({ route, navigation, props, isExtended, setIs
                                     <Text style={{ textAlign: "center", fontSize: 25, fontWeight: "bold", marginLeft: 30 }}>Attendance</Text>
                                 </TouchableOpacity>
                             </View>
-                            {/* <View style={[styles.box, styles.two]}>
-                                <TouchableOpacity style={styles.loginBtn} onPress={onsubmit}>
-                                    <Image source={require('../assets/qr-code.png')} style={{ width: 90, height: 90, marginLeft: 50 }}></Image>
-                                    <Text style={{ textAlign: "center", fontSize: 25, fontWeight: "bold", marginLeft: 50 }}>QR-Scan</Text>
-                                </TouchableOpacity>
-                            </View> */}
-
                         </View>
                     </Card>
                 </ScrollView>
-            <FooterComponent email={mail} name={name}></FooterComponent>
+            <FooterComponent email={mail} name={name} ></FooterComponent>
         </View>
-
-        // <ThemeProvider theme={theme}>
-        //     <HeadderComponent {...props} showName="MainScreen" />
-        // <View style={[s.body, styles.container]}>
-        //     <View style={[styles.hedding, styles.boxWithShadow, styles.bottomMargin]}>
-        //         <Text style={[styles.txtclrlightblack, styles.txtprimary, styles.txtMargin]}>hello {JSON.stringify(name)}</Text>
-        //     </View>
-        //     <View style={styles.row}>
-        //         <View style={[styles.box, styles.two]}>
-        //             <TouchableOpacity style={styles.loginBtn} onPress={onsubmit}>
-        //                 <Image source={require('../assets/to-do-list.png')} style={{ width: 90, height: 90, marginLeft: 50 }}></Image>
-        //                 <Text style={{ textAlign: "center", fontSize: 25, fontWeight: "bold", marginLeft: 60 }}>Tasks</Text>
-        //             </TouchableOpacity>
-        //         </View>
-        //         <View style={[styles.box, styles.two]}>
-        //             <TouchableOpacity style={styles.loginBtn} onPress={onsubmit}>
-        //                 <Image source={require('../assets/qr-code.png')} style={{ width: 90, height: 90, marginLeft: 50 }}></Image>
-        //                 <Text style={{ textAlign: "center", fontSize: 25, fontWeight: "bold", marginLeft: 50 }}>QR-Scan</Text>
-        //             </TouchableOpacity>
-        //         </View>
-        //     </View>
-        // </View>
-        // </ThemeProvider>
+   
     )
 }
 const styles = StyleSheet.create({
@@ -382,7 +326,15 @@ const styles = StyleSheet.create({
         color: "#777",
         textTransform: "uppercase",
         fontSize: 13
-    }
+    },
+    ititle: {
+        marginTop: 30,
+        fontSize: 20
+    },
+    emailText: {
+        top: 5,
+        fontSize: 10
+    },
 
 });
 
