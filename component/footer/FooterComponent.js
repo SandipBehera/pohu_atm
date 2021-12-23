@@ -8,60 +8,17 @@ export default function FooterComponent(props) {
     const name=props.name;
     const navigation = useNavigation();
     let Home = () => {
-        const data = JSON.stringify({
-            "assigned": mail
-        });
-        var config = {
-            method: 'POST',
-            url: 'http://34.136.41.197:5000/taskassign',
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Origin': 'null'
-            },
-            data: data
-        };
-
-        axios(config)
-            .then(response => {
-                var description = response.data["data"]
-                navigation.navigate('home', { desc: description, mail: mail, name: name});
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+                navigation.navigate('Root', {screen:"Dashboard"});
     }
     let events = () => {
-        navigation.navigate('meetings');
+        navigation.navigate('Root',{screen:"calender"});
 
     }
     let news = () => {
-        navigation.goBack('home');
+        navigation.navigate('Root', {screen:"Dashboard"});
     }
     let task = () => {
-        const data = JSON.stringify({
-            "assigned": mail
-        });
-        var config = {
-            method: 'POST',
-            url: 'http://34.136.41.197:5000/taskassign',
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Headers': '*',
-                'Access-Control-Allow-Origin': 'null'
-            },
-            data: data
-        };
-
-        axios(config)
-            .then(response => {
-                var description = response.data["data"]
-                var TaskData=response.data["populator"]
-                navigation.navigate('task', { desc: description, mail: mail,name:name ,taskdata:TaskData});
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+                navigation.navigate('Root',{screen:"MyTask"});
     }
     return (
         <View style={styles.footer} style={{ height: 80 }}>

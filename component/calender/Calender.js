@@ -13,9 +13,6 @@ export default function Calender({ route, navigation, props }) {
     // const name = route.params["name"];
 return(
     <View style={[ styles.container]}>
-    <View>
-        <HeadderComponent />
-    </View>
     <View style={{height:700}}>
         <MeetingScreen></MeetingScreen>
     </View>

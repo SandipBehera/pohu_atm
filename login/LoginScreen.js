@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { View, Image, StyleSheet, TextInput, TouchableOpacity, Text, Dimensions, SafeAreaView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import axios from 'axios';
@@ -10,6 +10,8 @@ import { useColorScheme } from 'react-native-appearance';
 import HeadderComponent from "../component/headder/LeftComponent";
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { ImageBackground } from "react-native";
+import Dashboard from "../home/new_dashboard";
+import { TaskContext } from "../DataContext/TaskContext";
 var { height } = Dimensions.get('window');
 var box_count = 2;
 var box_height = height / box_count;
@@ -18,6 +20,7 @@ const LoginScreen = ({ navigation, props }) => {
   const [password, setPassword] = useState("");
   const [swit, setSwt] = useState(false);
   const onToggleSwitch = () => setSwt(!swit);
+  const taskdt=useContext(TaskContext)
   const theme = {
     Button: {
       raised: true,
@@ -52,13 +55,12 @@ const LoginScreen = ({ navigation, props }) => {
         "isParent": "1"
       }
     }
-    console.log(loginCredentials)
     const data1 = JSON.stringify({
       "assigned": email
     });
     var config = {
       method: 'POST',
-      url: 'http://34.136.41.197:5000/taskassign',
+      url: 'http://10.0.0.4:5001/taskassign',
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Headers': '*',
@@ -69,8 +71,8 @@ const LoginScreen = ({ navigation, props }) => {
 
     axios(config)
       .then(response => {
-        description = response.data["data"]
-        // console.log(description)
+        description = response.data["populator"]
+        
       })
       .catch(function (error) {
         console.log(error);
@@ -92,12 +94,16 @@ const LoginScreen = ({ navigation, props }) => {
       data: data
     }
     axios(doPost).then(function (response) {
-      console.log(description);
+     
       const name = response.data.uName;
 
       if (response.data.stdId == "none") {
-        console.log(response.data.mailID)
-        navigation.navigate('home', { name: response.data.uName, mail: response.data.mailID[0], desc: description });
+        
+        taskdt.setTaskData(description);
+        taskdt.setName(name);
+        taskdt.setEmail(response.data.mailID[0]);
+        navigation.navigate("Root",{screen:'Dashboard', params:{ name: response.data.uName, mail: response.data.mailID[0], desc: description }});
+       
       }
       else {
         navigation.navigate('parent-home', { name: response.data.uName, stdId: response.data.stdId })

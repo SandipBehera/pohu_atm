@@ -1,210 +1,179 @@
-import React from "react";
-import { View, Image, StyleSheet, TextInput, TouchableOpacity, Text, ImageBackground, ScrollView, FlatList, TouchableHighlight } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import axios from 'axios';
-import BootstrapStyleSheet from 'react-native-bootstrap-styles';
-import { background, backgroundColor, boxShadow, height, marginTop, width } from "styled-system";
-import { Center } from "native-base";
-import { ThemeProvider, Button, Avatar, Input } from "@react-navigation/native";
-import { Header } from "react-native-elements/dist/header/Header";
-import Sidebar from "../component/headder/LeftComponent";
-import HeadderComponent from "../component/headder/LeftComponent";
-import FooterComponent from "../component/footer/FooterComponent";
-import { Card, ListItem, Icon,FAB } from 'react-native-elements';
-export default function ParentScreen(props){
-    const name=props.route.params["name"];
-    const stdId=props.route.params["stdId"];
-    
-return(
-    <View style={styles.container}>
-         <View>
-                <HeadderComponent name={name} />
+import React, { useState } from 'react';
+import { ScrollView, View, Text, SafeAreaView, TouchableOpacity, StyleSheet, TouchableHighlight } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import { Avatar, Icon } from "react-native-elements";
+import { Table, TableWrapper, Row, Rows, Col } from 'react-native-table-component';
+import AttendanceReport from '../attendance/AttendanceReport';
+import Barchart from '../component/Plot/barplot';
+export default function ParentScreen () {
+    const [month, setMonth] = useState('January');
+    const [colorSC, setColorSC] = useState("black");
+    const [backgroundSC, setBackgroundSC] = useState("white");
+    const [colorB, setColorB] = useState("black");
+    const [backgroundB, setBackgroundB] = useState("white");
+    const [component, setComponent] = useState(<AttendanceReport />);
+    const [tableHead, setTableHead] = useState(['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+    const [tableTitle, setTableTitle] = useState(['Week 1', 'Week 2', 'Week 3', 'Week 4']);
+    const [tableData, setTableData] = useState([
+        [<Icon name='check-box' type='material' color='green' />, <Icon name='check-box' type='material' color='green' />,
+        <Icon name='check-box' type='material' color='green' />, <Icon name='check-box' type='material' color='green' />,
+        <Icon name='squared-cross' type='entypo' color='red' />, <Icon name='squared-cross' type='entypo' color='red' />],
+        [<Icon name='check-box' type='material' color='green' />, <Icon name='check-box' type='material' color='green' />,
+        <Icon name='check-box' type='material' color='green' />, <Icon name='check-box' type='material' color='green' />,
+        <Icon name='squared-cross' type='entypo' color='red' />, <Icon name='squared-cross' type='entypo' color='red' />],
+        [<Icon name='check-box' type='material' color='green' />, <Icon name='check-box' type='material' color='green' />,
+        <Icon name='check-box' type='material' color='green' />, <Icon name='check-box' type='material' color='green' />,
+        <Icon name='squared-cross' type='entypo' color='red' />, <Icon name='squared-cross' type='entypo' color='red' />],
+        [<Icon name='check-box' type='material' color='green' />, <Icon name='check-box' type='material' color='green' />,
+        <Icon name='check-box' type='material' color='green' />, <Icon name='check-box' type='material' color='green' />,
+        <Icon name='squared-cross' type='entypo' color='red' />, <Icon name='squared-cross' type='entypo' color='red' />],
+    ]);
+    const clearState = () => {
+        setBackgroundB('white')
+        setColorB('black')
+        setColorSC('black')
+        setBackgroundSC('white')
+    }
+    const onBarchartClick = () => {
+        console.log("hellooo");
+        clearState()
+        setBackgroundB('#1976D2')
+        setColorB('white')
+        setComponent(<Barchart />)
+    }
+    const onAttendanceClick = () => {
+        console.log('hiii');
+        clearState()
+        setBackgroundSC('#1976D2')
+        setColorSC('white')
+        setComponent(<AttendanceReport />)
+    }
+    return (
+        <SafeAreaView>
+            <View>
+                <ScrollView>
+                    <View style={{ width: 414, height: 212, backgroundColor: '#1976D2', borderBottomLeftRadius: 25 }}>
+                        <View style={{ top: 72, left: 34 }}>
+                            <Avatar
+                                size="xlarge"
+                                source={{
+                                    uri:
+                                        'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
+                                }}
+                                onPress={() => console.log("Works!")}
+                                activeOpacity={0.9}
+                                avatarStyle={{ borderRadius: 10, }}
+                            />
+                        </View>
+                        <Text style={{ marginLeft: 200, color: 'white', fontSize: 20, fontWeight: 'bold' }}>Manushi-III B</Text>
+                        <Text style={{ marginLeft: 200, color: 'white', fontSize: 13 }}>Y12345</Text>
+                    </View>
+                    <Text style={{
+                        color: 'black', fontSize: 18, top: 40, left: 37, fontWeight: '500'
+                    }}>Subjects</Text>
+                    <View style={{ top: 72, left: 34, flexDirection: 'row', }}>
+                        <Avatar
+                            size="large"
+                            source={require('../assets/subject.png')}
+                            onPress={() => console.log("Works!")}
+                            activeOpacity={0.9}
+                            avatarStyle={{ borderRadius: 10, }}
+                        />
+                        <View style={{ flexDirection: 'column' }}>
+                            <Text style={{ fontSize: 16, fontWeight: '400', left: 8 }}>Telugu</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '500', left: 8 }}>A_Jyothi</Text>
+                        </View>
+                        <View style={{ left: 45 }}>
+                            <Avatar
+                                size="large"
+                                source={require('../assets/subject.png')}
+                                onPress={() => console.log("Works!")}
+                                activeOpacity={0.9}
+                                avatarStyle={{ borderRadius: 10, }}
+                            />
+                        </View>
+                        <View style={{ flexDirection: 'column', left: 40 }}>
+                            <Text style={{ fontSize: 16, fontWeight: '400', left: 8 }}>English</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '500', left: 8 }}>A_Jyothi</Text>
+                        </View>
+                    </View>
+                    <View style={{ top: 92, left: 34, flexDirection: 'row', }}>
+                        <Avatar
+                            size="large"
+                            source={require('../assets/subject.png')}
+                            onPress={() => console.log("Works!")}
+                            activeOpacity={0.9}
+                            avatarStyle={{ borderRadius: 10, }}
+                        />
+                        <View style={{ flexDirection: 'column' }}>
+                            <Text style={{ fontSize: 16, fontWeight: '400', left: 8 }}>Hindi</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '500', left: 8 }}>A_Jyothi</Text>
+                        </View>
+                        <View style={{ left: 45 }}>
+                            <Avatar
+                                size="large"
+                                source={require('../assets/subject.png')}
+                                onPress={() => console.log("Works!")}
+                                activeOpacity={0.9}
+                                avatarStyle={{ borderRadius: 10, }}
+                            />
+                        </View>
+                        <View style={{ flexDirection: 'column', left: 40 }}>
+                            <Text style={{ fontSize: 16, fontWeight: '400', left: 8 }}>Mathematics</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '500', left: 8 }}>A_Jyothi</Text>
+                        </View>
+                    </View>
+                    <View style={{ top: 112, left: 34, flexDirection: 'row', }}>
+                        <Avatar
+                            size="large"
+                            source={require('../assets/subject.png')}
+                            onPress={() => console.log("Works!")}
+                            activeOpacity={0.9}
+                            avatarStyle={{ borderRadius: 10, }}
+                        />
+                        <View style={{ flexDirection: 'column' }}>
+                            <Text style={{ fontSize: 16, fontWeight: '400', left: 8 }}>Science</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '500', left: 8 }}>A_Jyothi</Text>
+                        </View>
+                        <View style={{ left: 45 }}>
+                            <Avatar
+                                size="large"
+                                source={require('../assets/subject.png')}
+                                onPress={() => console.log("Works!")}
+                                activeOpacity={0.9}
+                                avatarStyle={{ borderRadius: 10, }}
+                            />
+                        </View>
+                        <View style={{ flexDirection: 'column', left: 40 }}>
+                            <Text style={{ fontSize: 16, fontWeight: '400', left: 8 }}>Social</Text>
+                            <Text style={{ fontSize: 12, fontWeight: '500', left: 8 }}>A_Jyothi</Text>
+                        </View>
+                    </View>
+                    <Text style={{
+                        color: 'black', fontSize: 18, top: 130, left: 37, fontWeight: '500'
+                    }}>Reports</Text>
+                    <View style={{ flexDirection: 'row', top: 150, left: 37 }}>
+                        <TouchableHighlight style={{
+                            backgroundColor: backgroundSC, width: 102,
+                            height: 33, borderRadius: 10, alignItems: 'center'
+                        }} onPress={onAttendanceClick}><Text style={{ fontSize: 13, color: colorSC, padding: 8 }}>Attendance</Text></TouchableHighlight>
+                        <TouchableOpacity onPress={() => onBarchartClick()} style={{
+                            backgroundColor: backgroundB, width: 70,
+                            height: 33, borderRadius: 10, marginLeft: 30, alignItems: 'center'
+                        }}  >
+                            <Text style={{ fontSize: 13, color: colorB, padding: 8 }}>Marks</Text></TouchableOpacity>
+                    </View>
+                    {component}
+                </ScrollView>
             </View>
-            
-    </View>
-)
+        </SafeAreaView>
+    )
 }
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#ffff",
-        justifyContent: 'space-around',
-    },
-    bgImage: {
-        flex: 1,
-        marginHorizontal: -20,
-    },
-    section: {
-        flex: 1,
-        paddingHorizontal: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    sectionLarge: {
-        flex: 2,
-        justifyContent: 'space-around',
-    },
-    sectionHeader: {
-        marginBottom: 8,
-    },
-    priceContainer: {
-        alignItems: 'center',
-    },
-    description: {
-        padding: 15,
-        lineHeight: 25,
-    },
-    titleDescription: {
-        color: '#19e7f7',
-        textAlign: 'center',
-        fontFamily: 'Lato-Regular',
-        fontSize: 15,
-    },
-    title: {
-        marginTop: 30,
-    },
-    price: {
-        marginBottom: 5,
-    },
-    priceLink: {
-        borderBottomWidth: 1,
-        borderBottomColor: '#555CC4',
-    },
-    row: {
-        flex: 1,
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: 'space-between',
-        marginTop: 10
-    },
-    box: {
-        flex: 1,
-        height: 170,
-        backgroundColor: 'transparent',
-    },
-    sbox: {
-        flex: 1,
-        height: 60,
-        backgroundColor: 'transparent',
-    },
-    two: {
-        flex: 2,
-        borderLeftWidth: 1,
-        borderBottomWidth: 1,
-        borderRightWidth: 1,
-        borderTopWidth: 1,
-
-    },
-    fcol: {
-        flex: 1,
-    },
-    loginBtn: {
-        height: 170,
-        alignItems: "flex-start",
-        justifyContent: "flex-start",
-        marginTop: 20,
-
-    },
-    footerbtn: {
-        height: 60,
-        alignItems: "center",
-        justifyContent: "flex-start",
-        marginTop: 10,
-    },
-    card: {
-        flex: 1,
-        borderTopWidth: 1,
-        borderLeftWidth: 1,
-        borderBottomWidth: 1,
-        borderRightWidth: 1,
-        marginBottom: 1.85,
-        width: 420
-    },
-
-    bgone: {
-        borderTopLeftRadius: 30,
-        borderBottomRightRadius: 30,
-        borderColor: "#fdbb38",
-        backgroundColor: "#f0c162",
-        height: 100,
-        width: 409,
-        marginLeft: 12
-    },
-    pgmargin: {
-        marginLeft: 10,
-        height: 100,
-        width: 300,
-    },
-    alignItemCenter: {
-        alignItems: "center"
-    },
-    justifycontentbetwwn: {
-        justifyContent: "center"
-    },
-    dflex: {
-        display: "flex"
-    },
-    dbIcon: {
-        fontSize: 25,
-        width: 60,
-        height: 60,
-        borderRadius: 10,
-        color: "#ffff"
-    },
-    cardbody: {
-        padding: 24,
-        flex: 1,
-        backgroundColor: "#eaeaea"
-    },
-    cardHeader: {
-        backgroundColor: "#ffff",
-        borderBottomWidth: 1,
-        borderBottomColor: "#eaeaea",
-        padding: 15
-    },
-    footer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: 60,
-
-    },
-    playButton: {
-        backgroundColor: '#FEFEFE',
-        alignItems: 'flex-start',
-        height: 30,
-        width: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 4
-    },
-    footerRow: {
-        flex: 1,
-        flexDirection: "row",
-        flexWrap: "wrap",
-        justifyContent: 'space-between',
-    },
-    activityfeed: {
-        marginLeft: 5,
-        padding: 0
-    },
-    feeditem: {
-        borderLeftWidth: 1,
-        borderLeftColor: "#e4e8eb",
-        paddingLeft: 20,
-        position: "relative"
-    },
-    feedtext: {
-        color: "#777",
-        position: "relative",
-        fontSize: 20
-    },
-    feeddate: {
-        position: "relative",
-        color: "#777",
-        textTransform: "uppercase",
-        fontSize: 13
-    }
-
+    container: { marginTop: 190, padding: 16, paddingTop: 30, backgroundColor: '#fff' },
+    head: { height: 40, },
+    wrapper: { flexDirection: 'row' },
+    title: { flex: 1 },
+    row: { height: 32 },
+    text: { textAlign: 'center' }
 });
-

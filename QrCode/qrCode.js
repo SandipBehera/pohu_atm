@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import { TaskContext } from '../DataContext/TaskContext';
 export default function ScannerComponent(props) {
   const navigation=useNavigation();
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const name=props.route.params["name"];
-  const email=props.route.params["mail"];
+  const tddt=useContext(TaskContext);
+  const name=tddt.name;
+  const email=tddt.email;
 console.log(email);
   useEffect(() => {
     (async () => {
@@ -21,7 +23,8 @@ console.log(email);
     setScanned(true);
     // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
     const datas = JSON.stringify({
-      "data": data
+      // "data": data
+      "data":"b9355707-0fb2-464f-bc87-a5fa3ff1bc15"
   });
   console.log(datas);
   var config = {

@@ -126,7 +126,7 @@ export default function TakeAttendanceComponent(props) {
     }
     return (
         <View style={[styles.container]}>
-            <HeadderComponent name={name} />
+            {/* <HeadderComponent name={name} /> */}
             <ScrollView>
                 <View style={[styles.flex, styles.roundlg, styles.shadowlg]}>
                     <View style={[styles.wd, styles.flex, s.p3, styles.bottom_border]}>

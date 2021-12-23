@@ -112,8 +112,9 @@ export default function StudentAttendanceComponent({ route, navigation, props })
                     <View>
                     <Text style={{ color: "#9E9E9E", fontWeight: "500", fontSize: 17, lineHeight: 25, marginLeft:15 }}>List of Students</Text>        
                     <View style={{marginTop:"5%",marginLeft:"2%"}}>
+                    <ScrollView  style={{height:530}} decelerationRate={0.9} bounces={true} bouncesZoom={true}>
                     <SafeAreaView>
-                                <ScrollView  style={{height:530}} decelerationRate={0.9} bounces={true} bouncesZoom={true}>
+                                
                                     {
                                         data.map((item, key) =>
                                         <View style={styles.footerRow} >
@@ -133,8 +134,9 @@ export default function StudentAttendanceComponent({ route, navigation, props })
 
                                         </View>
                                         )}   
-                                    </ScrollView>
+                                   
                             </SafeAreaView>
+                            </ScrollView>
                            <View style={{alignItems:"center"}}>             
                             <TouchableOpacity  style={styles.loginBtn} >
                                 <Text style={styles.loginText}  onPress={onsubmit}>Submit Attendance</Text>

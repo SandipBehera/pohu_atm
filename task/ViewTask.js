@@ -1,24 +1,21 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { View, Image, StyleSheet, TextInput, TouchableOpacity, Button, Text, ImageBackground, ScrollView, FlatList, Dimensions } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import BootstrapStyleSheet from 'react-native-bootstrap-styles';
-import { SafeAreaView } from "react-native-safe-area-context";
 import axios from "axios";
-import Sidebar from "../component/headder/LeftComponent";
-import HeadderComponent from "../component/headder/LeftComponent";
 import FooterComponent from "../component/footer/FooterComponent";
 import { Card, ListItem, Icon, FAB, Tab, TabView } from 'react-native-elements';
-import { verticalAlign } from "styled-system";
-
+import { TaskContext } from "../DataContext/TaskContext";
 export default function ViewTask({ route, navigation, props }) {
     const bootstrapStyle = new BootstrapStyleSheet();
-    const description = route.params["desc"];
-    const TaskData=route.params["taskdata"];
+    const tsdt=useContext(TaskContext)
+    const TaskData=tsdt.taskdata;
+    console.log(TaskData)
     const [tabIndex,setTabIndex]=useState("");
     const { image } = { uri: "https://cutewallpaper.org/21/abstract-background-hd/light-grey-abstract-background-hd-cool-7-2-Tiffany-Hayes-.jpg" };
     const { s } = bootstrapStyle;
-    const mail = route.params["mail"];
-    const name = route.params["name"];
+    const mail = tsdt.email;
+    const name = tsdt.name;
+    console.log(TaskData["activeTaskID"][0]);
     const newTask = () => {
         navigation.navigate('task-create', { name: name, mail: mail });
     }
@@ -40,7 +37,7 @@ export default function ViewTask({ route, navigation, props }) {
         axios(config)
             .then(response => {
                 var ContentData = response.data["json"];
-                navigation.navigate('task-update', { cInput: ContentData, taskID: id, mailId: mail, name: name });
+                navigation.navigate('task-update', { cInput: ContentData, taskID: id, mailId: mail });
             })
             .catch(function (error) {
                 console.error(error)
@@ -59,6 +56,7 @@ export default function ViewTask({ route, navigation, props }) {
         }
     }
     const lowPriorityTask=(taskDescription, priority)=>{
+        
         return(
         <View style={styles.LowPrior}>
                 <View style={styles.footerRow} >
@@ -259,9 +257,9 @@ export default function ViewTask({ route, navigation, props }) {
     ))
     return (
         <View style={[s.body, styles.container]}>
-            <View>
+            {/* <View>
                 <HeadderComponent name={name} />
-            </View>
+            </View> */}
             <View>
                 <Text style={{ color: "#1976D2", fontWeight: "600", fontSize: 17, lineHeight: 25, marginLeft:15 }}>MyTasks</Text>
             </View>
@@ -303,10 +301,10 @@ export default function ViewTask({ route, navigation, props }) {
                     </TabView.Item>
                 </TabView>
                 
-                    <FAB title="+" placement="right" size="large" color="#18aefa" style={{ marginRight: 40 }} onPress={newTask} />
+                    {/* <FAB title="+" placement="right" size="large" color="#18aefa" style={{ marginRight: 40 }} onPress={newTask} /> */}
             </View>
             <View >
-                <FooterComponent email={mail} name={name}></FooterComponent>
+                <FooterComponent email={mail} ></FooterComponent>
             </View>
         </View>
     )

@@ -125,6 +125,7 @@ export default function TaskProfile(props) {
     const name = props.route.params["name"];
     const email = props.route.params["mailId"];
     const taskid = props.route.params["taskID"];
+    console.log("hello:"+email);
     const [visible, SetVisible] = useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
     const [datas,setDatas]=useState(props.route.params["cInput"]);
@@ -193,7 +194,7 @@ export default function TaskProfile(props) {
         });
         var config = {
             method: 'POST',
-            url: 'http://192.168.0.100:5001/edit',
+            url: 'http://10.0.0.4:5001/edit',
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Headers': '*',
@@ -220,7 +221,7 @@ export default function TaskProfile(props) {
         });
         var config = {
             method: 'POST',
-            url: 'http://192.168.0.100:5001/edit',
+            url: 'http://10.0.0.4:5001/edit',
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Headers': '*',
