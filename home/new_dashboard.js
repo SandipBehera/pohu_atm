@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { ScrollView, View, Text, SafeAreaView, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { ScrollView, View, Text, SafeAreaView, TouchableOpacity, StyleSheet, FlatList, Platform } from 'react-native';
 import { Avatar, ListItem, Icon, Card } from 'react-native-elements';
 import { Picker } from '@react-native-picker/picker';
 import HeadderComponent from '../component/headder/LeftComponent';
@@ -120,7 +120,7 @@ export default function Dashboard(props) {
                 <HeadderComponent name={name} mail={mail} />
             </View> */}
             <ScrollView style={{marginTop:10}}>
-                <SafeAreaView style={{height:680}}>
+                <SafeAreaView style={styles.middleContent}>
 
                     <View >
                         <View style={{ marginTop: 0, marginLeft: 18 }}>
@@ -168,6 +168,16 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#ffff",
         justifyContent: 'space-around',
+    },
+    middleContent:{
+        ...Platform.select({
+            ios:{
+                height:670
+            },
+            android:{
+                height:650
+            }
+        })
     },
     bgImage: {
         flex: 1,

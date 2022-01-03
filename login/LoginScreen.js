@@ -2,19 +2,12 @@ import React, { useContext, useState } from "react";
 import { View, Image, StyleSheet, TextInput, TouchableOpacity, Text, Dimensions, SafeAreaView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import axios from 'axios';
-import ViewTask from "../task/ViewTask";
-import ReactDOM from 'react-dom';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { ThemeProvider, Button, Avatar, Input, Switch } from "react-native-elements";
 import { useColorScheme } from 'react-native-appearance';
-import HeadderComponent from "../component/headder/LeftComponent";
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import { ImageBackground } from "react-native";
-import Dashboard from "../home/new_dashboard";
 import { TaskContext } from "../DataContext/TaskContext";
-var { height } = Dimensions.get('window');
-var box_count = 2;
-var box_height = height / box_count;
+const {width, height} = Dimensions.get('window');
 const LoginScreen = ({ navigation, props }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,7 +53,7 @@ const LoginScreen = ({ navigation, props }) => {
     });
     var config = {
       method: 'POST',
-      url: 'http://10.0.0.4:5001/taskassign',
+      url: 'http://10.0.0.2:5001/taskassign',
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Headers': '*',
@@ -149,9 +142,9 @@ const LoginScreen = ({ navigation, props }) => {
           </TouchableOpacity>
         </View>
         <View>
-        <View style={{ marginLeft: 56 }}>
-          <Switch value={swit} onValueChange={onToggleSwitch} color="orange" />
-          <Text>Click for parent's login</Text>
+        <View style={{ marginLeft: "13%"}}>
+          <Switch value={swit} onValueChange={onToggleSwitch} color="orange" style={{position:"absolute"}} />
+          <Text style={{marginTop:"12%"}}>Click for parent's login</Text>
         </View>
         <TouchableOpacity style={styles.loginBtn} onPress={onsubmit}>
           <Text style={styles.loginText} >LOGIN</Text>
@@ -204,7 +197,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#1976D2",
     borderRadius: 15,
-    marginLeft: 56
+    marginLeft: "13%"
   },
   imageover: {
     position: 'absolute',

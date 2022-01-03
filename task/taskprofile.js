@@ -121,7 +121,6 @@ const getStepIndicatorIconConfig = (
 };
 
 export default function TaskProfile(props) {
-    const [currentPage, setCurrentPage] = useState(0);
     const name = props.route.params["name"];
     const email = props.route.params["mailId"];
     const taskid = props.route.params["taskID"];
@@ -129,36 +128,11 @@ export default function TaskProfile(props) {
     const [visible, SetVisible] = useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
     const [datas,setDatas]=useState(props.route.params["cInput"]);
-    console.log("task assigned by:"+datas["task assigned by"]);
-    const renderViewPagerPage = (data) => {
-        return (
-            <View key={data} style={styles.page}>
-                <Text>{data}</Text>
-            </View>
-        );
-    };
 
     const renderStepIndicator = (params) => (
         <MaterialIcons {...getStepIndicatorIconConfig(params)} />
     );
 
-    const renderLabel = (
-        position,
-        label,
-        currentPosition,
-    ) => {
-        return (
-            <Text
-                style={
-                    position === currentPosition
-                        ? styles.stepLabelSelected
-                        : styles.stepLabel
-                }
-            >
-                {label}
-            </Text>
-        );
-    };
     const Reporting_name = datas["task assigned by"];
     var nameReplace = Reporting_name.replace(/@.*$/, "");
     var Reportingname = nameReplace !== Reporting_name ? nameReplace : null;
@@ -169,8 +143,6 @@ export default function TaskProfile(props) {
     console.log("task assigned by"+datas["task assigned by"]);
     console.log(Assigned_by);
     var SubmitbtnVal = "";
-    var sbtbtn = "";
-    var approveBtn = "";
     var theView = "";
     const onsubmit = () => {
         let messages = "";
@@ -194,7 +166,7 @@ export default function TaskProfile(props) {
         });
         var config = {
             method: 'POST',
-            url: 'http://10.0.0.4:5001/edit',
+            url: 'http://10.0.0.2:5001/edit',
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Headers': '*',
@@ -221,7 +193,7 @@ export default function TaskProfile(props) {
         });
         var config = {
             method: 'POST',
-            url: 'http://10.0.0.4:5001/edit',
+            url: 'http://10.0.0.2:5001/edit',
             headers: {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Headers': '*',
@@ -250,6 +222,7 @@ export default function TaskProfile(props) {
     }
     if (datas["task status"] === "Start Task") {
         SubmitbtnVal = "Start Task";
+       
         theView = <SafeAreaView style={{ height: 700, top: "-5.7%", marginBottom: "5%" }}>
             <View style={styles.container}>
                 <View>
@@ -277,7 +250,7 @@ export default function TaskProfile(props) {
                 <View style={styles.stepIndicator}>
                     <StepIndicator
                         customStyles={firstIndicatorStyles}
-                        currentPosition={currentPage}
+                        currentPosition={0}
 
                         labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
                         stepCount={4}
@@ -416,7 +389,7 @@ export default function TaskProfile(props) {
                     <View style={styles.stepIndicator}>
                         <StepIndicator
                             customStyles={firstIndicatorStyles}
-                            currentPosition={currentPage}
+                            currentPosition={2}
 
                             labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
                             stepCount={4}
@@ -545,7 +518,7 @@ export default function TaskProfile(props) {
                 <View style={styles.stepIndicator}>
                     <StepIndicator
                         customStyles={firstIndicatorStyles}
-                        currentPosition={currentPage}
+                        currentPosition={3}
 
                         labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
                         stepCount={4}
@@ -683,7 +656,7 @@ export default function TaskProfile(props) {
                 <View style={styles.stepIndicator}>
                     <StepIndicator
                         customStyles={firstIndicatorStyles}
-                        currentPosition={currentPage}
+                        currentPosition={1}
 
                         labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
                         stepCount={4}
@@ -812,7 +785,7 @@ export default function TaskProfile(props) {
                 <View style={styles.stepIndicator}>
                     <StepIndicator
                         customStyles={firstIndicatorStyles}
-                        currentPosition={currentPage}
+                        currentPosition={3}
 
                         labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
                         stepCount={4}
@@ -951,7 +924,7 @@ export default function TaskProfile(props) {
                     <View style={styles.stepIndicator}>
                         <StepIndicator
                             customStyles={firstIndicatorStyles}
-                            currentPosition={currentPage}
+                            currentPosition={1}
 
                             labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
                             stepCount={4}
@@ -1092,7 +1065,7 @@ export default function TaskProfile(props) {
                     <View style={styles.stepIndicator}>
                         <StepIndicator
                             customStyles={firstIndicatorStyles}
-                            currentPosition={currentPage}
+                            currentPosition={3}
 
                             labels={['Task Created', 'Task Started', 'Task Finished', 'Task Approved',]}
                             stepCount={4}
@@ -1226,7 +1199,7 @@ export default function TaskProfile(props) {
     }
 
     return (
-        <View style={{ backgroundColor: "#fff" }}>
+        <View style={styles.container}>
             {theView}
             <View >
                 <FooterComponent email={email} name={name}></FooterComponent>
@@ -1243,6 +1216,16 @@ const styles = StyleSheet.create({
     stepIndicator: {
         marginVertical: 50,
     },
+    middleContent: {
+        ...Platform.select({
+            ios: {
+                height: 600
+            },
+            android: {
+                height: 650
+            }
+        })
+    }, 
     page: {
         flex: 1,
 

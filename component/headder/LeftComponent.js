@@ -37,6 +37,7 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import ScannerComponent from "../../QrCode/qrCode";
 import Calender from "../calender/Calender";
 import LogoutComponent from "../../login/LogoutScreen";
+// import Notifications from "../Notifications/Notification";
 const Drawer=createDrawerNavigator();
 function Root(){
 return(
@@ -45,6 +46,7 @@ return(
   <Drawer.Screen name="MyTask" component={ViewTask}/>
   <Drawer.Screen name="Scan" component={ScannerComponent}/>
   <Drawer.Screen name="Calender" component={Calender}/>
+  {/* <Drawer.Screen name="Notification" component={Notifications}/> */}
   <Drawer.Screen name="logout" component={LogoutComponent}/>
 </Drawer.Navigator>
 );

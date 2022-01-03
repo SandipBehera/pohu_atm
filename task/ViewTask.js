@@ -1,28 +1,85 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { View, Image, StyleSheet, TextInput, TouchableOpacity, Button, Text, ImageBackground, ScrollView, FlatList, Dimensions } from "react-native";
 import BootstrapStyleSheet from 'react-native-bootstrap-styles';
 import axios from "axios";
 import FooterComponent from "../component/footer/FooterComponent";
 import { Card, ListItem, Icon, FAB, Tab, TabView } from 'react-native-elements';
 import { TaskContext } from "../DataContext/TaskContext";
+import { flex, verticalAlign } from "styled-system";
 export default function ViewTask({ route, navigation, props }) {
     const bootstrapStyle = new BootstrapStyleSheet();
-    const tsdt=useContext(TaskContext)
-    const TaskData=tsdt.taskdata;
+    const tsdt = useContext(TaskContext)
+    let [TaskData, setTaskData] = useState(tsdt.taskdata);
     console.log(TaskData)
-    const [tabIndex,setTabIndex]=useState("");
+    const [tabIndex, setTabIndex] = useState("");
     const { image } = { uri: "https://cutewallpaper.org/21/abstract-background-hd/light-grey-abstract-background-hd-cool-7-2-Tiffany-Hayes-.jpg" };
     const { s } = bootstrapStyle;
     const mail = tsdt.email;
     const name = tsdt.name;
-    console.log(TaskData["activeTaskID"][0]);
-    const newTask = () => {
-        navigation.navigate('task-create', { name: name, mail: mail });
+    //console.log(TaskData["activeTaskID"][0]);
+    let [active, setActive] = useState("true");
+    let [urgent, setUrgent] = useState("false");
+    let [backlogs, setBacklogs] = useState("false");
+    let [future, setFuture] = useState("false");
+    let fetchMetrics = () => {
+        const data1 = JSON.stringify({
+            "assigned": mail
+        });
+        var config = {
+            method: 'POST',
+            url: 'http://10.0.0.2:5001/taskassign',
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Headers': '*',
+                'Access-Control-Allow-Origin': 'null'
+            },
+            data: data1
+        };
+
+        axios(config)
+            .then(response => {
+                setTaskData(response.data["populator"]);
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
-   
+    let actionselect = (actionval) => {
+        console.log("actio val:"+actionval);
+        if (actionval === "Active") {
+            setActive("true");
+            setUrgent("false");
+            setBacklogs("false");
+            setFuture("false");
+            fetchMetrics();
+        }
+        else if (actionval === "urgent") {
+            setActive("false");
+            setUrgent("true");
+            setBacklogs("false");
+            setFuture("false");
+            fetchMetrics();
+        }
+        else if (actionval === "backlogs") {
+            
+            setActive("false");
+            setUrgent("false");
+            setBacklogs("true");
+            setFuture("false");
+            fetchMetrics();
+        }
+        else {
+            setActive("false");
+            setUrgent("false");
+            setBacklogs("false");
+            setFuture("true");
+            fetchMetrics();
+        }
+    }
     const onsubmit = (index) => {
         const id = index;
-        console.log("the post id is:"+id);
+        console.log("the post id is:" + id);
         const data = JSON.stringify({
             "obji": id
         });
@@ -44,7 +101,20 @@ export default function ViewTask({ route, navigation, props }) {
             })
     }
 
+
     function checkPriority(taskDescription, priority) {
+        if (taskDescription === "s" && priority === 'm') {
+            return (
+                <View >
+                    <View >
+                        <View>
+                            <Text style={{ textAlign: "center"}}>Nothing To Display</Text>
+                        </View>
+                    </View>
+                </View>
+            )
+        }
+        else{
         if (priority === "high") {
             return highPriorityTask(taskDescription, priority)
         }
@@ -54,67 +124,126 @@ export default function ViewTask({ route, navigation, props }) {
         else {
             return lowPriorityTask(taskDescription, priority)
         }
+        }
     }
-    const lowPriorityTask=(taskDescription, priority)=>{
+    const lowPriorityTask = (taskDescription, priority) => {
+            return (
+
+                <View style={styles.LowPrior}>
+
+                    <View style={styles.footerRow} >
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={28}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.ltext}>{taskDescription}</Text>
+
+                        </View>
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.ltext1}>Full Details</Text>
+                        </View>
+
+                    </View>
+                    <View style={styles.footerRow} >
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>{priority}</Text>
+
+                        </View>
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>Teacher</Text>
+                        </View>
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>Satuarday</Text>
+                        </View>
+                    </View>
+                </View>
+            );  
+    }
+    const highPriorityTask = (taskDescription, priority) => {
+            return (
+                <View style={styles.highPrior}>
+                    <View style={styles.footerRow} >
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={28}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.ltext}>{taskDescription}</Text>
+
+                        </View>
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.ltext1}>Full Details</Text>
+                        </View>
+
+                    </View>
+                    <View style={styles.footerRow} >
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>{priority}</Text>
+
+                        </View>
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>Teacher</Text>
+                        </View>
+                        <Icon
+                            name='sticky-note-2'
+                            type='material'
+                            color='#000'
+                            size={20}
+                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
+                        />
+                        <View style={[styles.sbox, styles.fcol]} >
+                            <Text style={styles.stext}>Satuarday</Text>
+                        </View>
+                    </View>
+                </View>
+            );
         
-        return(
-        <View style={styles.LowPrior}>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#000'
-                        size={28}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext}>{taskDescription}</Text>
-
-                    </View>
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.ltext1}>Full Details</Text>
-                    </View>
-
-                </View>
-                <View style={styles.footerRow} >
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#000'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>{priority}</Text>
-
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#000'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Teacher</Text>
-                    </View>
-                    <Icon
-                        name='sticky-note-2'
-                        type='material'
-                        color='#000'
-                        size={20}
-                        style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                    />
-                    <View style={[styles.sbox, styles.fcol]} >
-                        <Text style={styles.stext}>Satuarday</Text>
-                    </View>
-                </View>
-            </View>
-        );
     }
-    const highPriorityTask=(taskDescription,priority)=>{
-        return(
-            <View style={styles.highPrior}>
+    const mediumPriorityTask = (taskDescription, priority) => {
+            return (
+                <View style={styles.MidPrior}>
                     <View style={styles.footerRow} >
                         <Icon
                             name='sticky-note-2'
@@ -125,12 +254,12 @@ export default function ViewTask({ route, navigation, props }) {
                         />
                         <View style={[styles.sbox, styles.fcol]} >
                             <Text style={styles.ltext}>{taskDescription}</Text>
-    
+
                         </View>
                         <View style={[styles.sbox, styles.fcol]} >
                             <Text style={styles.ltext1}>Full Details</Text>
                         </View>
-    
+
                     </View>
                     <View style={styles.footerRow} >
                         <Icon
@@ -142,7 +271,7 @@ export default function ViewTask({ route, navigation, props }) {
                         />
                         <View style={[styles.sbox, styles.fcol]} >
                             <Text style={styles.stext}>{priority}</Text>
-    
+
                         </View>
                         <Icon
                             name='sticky-note-2'
@@ -167,141 +296,71 @@ export default function ViewTask({ route, navigation, props }) {
                     </View>
                 </View>
             );
-    }
-    const mediumPriorityTask=(taskDescription,priority)=>{
-        return(
-            <View style={styles.MidPrior}>
-                    <View style={styles.footerRow} >
-                        <Icon
-                            name='sticky-note-2'
-                            type='material'
-                            color='#000'
-                            size={28}
-                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                        />
-                        <View style={[styles.sbox, styles.fcol]} >
-                            <Text style={styles.ltext}>{taskDescription}</Text>
-    
-                        </View>
-                        <View style={[styles.sbox, styles.fcol]} >
-                            <Text style={styles.ltext1}>Full Details</Text>
-                        </View>
-    
-                    </View>
-                    <View style={styles.footerRow} >
-                        <Icon
-                            name='sticky-note-2'
-                            type='material'
-                            color='#000'
-                            size={20}
-                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                        />
-                        <View style={[styles.sbox, styles.fcol]} >
-                            <Text style={styles.stext}>{priority}</Text>
-    
-                        </View>
-                        <Icon
-                            name='sticky-note-2'
-                            type='material'
-                            color='#000'
-                            size={20}
-                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                        />
-                        <View style={[styles.sbox, styles.fcol]} >
-                            <Text style={styles.stext}>Teacher</Text>
-                        </View>
-                        <Icon
-                            name='sticky-note-2'
-                            type='material'
-                            color='#000'
-                            size={20}
-                            style={{ verticalAlign: "center", marginTop: 12, marginLeft: 20 }}
-                        />
-                        <View style={[styles.sbox, styles.fcol]} >
-                            <Text style={styles.stext}>Satuarday</Text>
-                        </View>
-                    </View>
-                </View>
-            );
+        
     }
     const ActiveTask = Object.keys(TaskData["activeTaskID"][0]).map((key, index) => (
-        
-        <TouchableOpacity  key={index} onPress={() => onsubmit(key)}>
-            <View>   
-                {checkPriority(TaskData["activeTaskID"][0][key][3],TaskData["activeTaskID"][0][key][0])}
-        </View>
+
+        <TouchableOpacity key={index} onPress={() => onsubmit(key)}>
+            <View>
+                {checkPriority(TaskData["activeTaskID"][0][key][3], TaskData["activeTaskID"][0][key][0])}
+            </View>
         </TouchableOpacity>
     ));
-    const  UrgentTask= Object.keys(TaskData["urgentTaskID"][0]).map((key, index) => (
+    const UrgentTask = Object.keys(TaskData["urgentTaskID"][0]).map((key, index) => (
         <View>
-            <TouchableOpacity  key={index} onPress={() => onsubmit(key)}>
-            {checkPriority(TaskData["urgentTaskID"][0][key][3],TaskData["urgentTaskID"][0][key][0])}
+            <TouchableOpacity key={index} onPress={() => onsubmit(key)}>
+                {checkPriority(TaskData["urgentTaskID"][0][key][3], TaskData["urgentTaskID"][0][key][0])}
             </TouchableOpacity>
         </View>
-        
+
     ))
-    const  BacklogsTask= Object.keys(TaskData["backlogTaskID"][0]).map((key, index) => (
+    const BacklogsTask = Object.keys(TaskData["backlogTaskID"][0]).map((key, index) => (
         <View>
-            <TouchableOpacity  key={index} onPress={() => onsubmit(key)}>
-            {checkPriority(TaskData["backlogTaskID"][0][key][3],TaskData["backlogTaskID"][0][key][0])}
+            <TouchableOpacity key={index} onPress={() => onsubmit(key)}>
+                {checkPriority(TaskData["backlogTaskID"][0][key][3], TaskData["backlogTaskID"][0][key][0])}
             </TouchableOpacity>
         </View>
     ))
-    const  FutureTask= Object.keys(TaskData["futureTaskID"][0]).map((key, index) => (
+    const FutureTask = Object.keys(TaskData["futureTaskID"][0]).map((key, index) => (
         <View>
-            <TouchableOpacity  key={index} onPress={() => onsubmit(key)}>
-            {checkPriority(TaskData["futureTaskID"][0][key][3],TaskData["futureTaskID"][0][key][0])}
+            <TouchableOpacity key={index} onPress={() => onsubmit(key)}>
+                {checkPriority(TaskData["futureTaskID"][0][key][3], TaskData["futureTaskID"][0][key][0])}
             </TouchableOpacity>
         </View>
-      
+
     ))
+
     return (
         <View style={[s.body, styles.container]}>
-            {/* <View>
-                <HeadderComponent name={name} />
-            </View> */}
             <View>
-                <Text style={{ color: "#1976D2", fontWeight: "600", fontSize: 17, lineHeight: 25, marginLeft:15 }}>MyTasks</Text>
+                <Text style={{ color: "#1976D2", fontWeight: "600", fontSize: 17, lineHeight: 25, marginLeft: 15 }}>MyTasks</Text>
             </View>
             <View>
-                <Tab value={tabIndex} onChange={setTabIndex}  indicatorStyle={{
-                            backgroundColor: 'white',
-                            height: 3,
-                }}>
-                    <Tab.Item title="Active"   titleStyle={{ fontSize: 10 ,color:"black"}} />
-                    <Tab.Item title="Urgent" titleStyle={{ fontSize: 10 ,color:"black"}}/>
-                    <Tab.Item title="Backlogs" titleStyle={{ fontSize: 10 ,color:"black"}}/>
-                    <Tab.Item title="Future" titleStyle={{ fontSize: 10 ,color:"black"}}/>
-                </Tab>
-            </View>
-            <View style={{ height: 650 }}>
-                <TabView value={tabIndex} onChange={setTabIndex} >
-                    <TabView.Item style={{width: '100%' }}>
-                      
-                           <ScrollView  style={{ flex: 1}}>
-                              {ActiveTask}
-                           </ScrollView>
-                       
-                      
-                    </TabView.Item>
-                    <TabView.Item style={{width: '100%' }}>
-                            <ScrollView  style={{ flex: 1}}>
-                                    {UrgentTask}
-                                </ScrollView>
-                    </TabView.Item>
-                    <TabView.Item style={{ width: '100%' }}>
-                    <ScrollView  style={{ flex: 1}}>
-                                    {BacklogsTask}
-                                </ScrollView>
-                    </TabView.Item>
-                    <TabView.Item style={{ width: '100%' }}>
-                    <ScrollView  style={{ flex: 1}}>
-                                    {FutureTask}
-                                </ScrollView>
-                    </TabView.Item>
-                </TabView>
+                <View style={{ flexDirection: 'row', left: 5 }}>
+                    <TouchableOpacity onPress={() => actionselect('Active')} style={{ backgroundColor: '#1976D2', width: 93, height: 40, borderRadius: 10, top: 10, paddingTop: 9, paddingBottom: 8, }} >
+                        <Text style={{ color: 'white',textAlign:"center" }}>Active</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ backgroundColor: 'lightgrey', width: 93, height: 40, borderRadius: 10, top: 10, paddingTop: 9, paddingBottom: 8,marginLeft: 5 }} onPress={() => actionselect("urgent")}>
+                        <Text style={{textAlign:"center"}}>Urgent</Text>
+                        </TouchableOpacity>
+                    <TouchableOpacity style={{ backgroundColor: 'lightgrey', width: 93, height: 40, borderRadius: 10, top: 10, paddingTop: 9, paddingBottom: 8, marginLeft: 5 }} onPress={() => actionselect("backlogs")}>
+                        <Text style={{ color: 'black',textAlign:"center" }}>Backlogs</Text>
+                        </TouchableOpacity>
+                    <TouchableOpacity style={{ backgroundColor: 'lightgrey', width: 93, height: 40, borderRadius: 10, top: 10, paddingTop: 9, paddingBottom: 8,marginLeft: 5 }} onPress={() => actionselect("future")}>
+                        <Text style={{textAlign:"center"}}>Future</Text>
+                        </TouchableOpacity>
+                </View>
                 
-                    {/* <FAB title="+" placement="right" size="large" color="#18aefa" style={{ marginRight: 40 }} onPress={newTask} /> */}
+            </View>
+            <View style={styles.middleContent}>
+               
+                {active==="true"?<View style={{height:400,marginTop:"10%"}}><ScrollView style={{ flex: 1 }}>{ActiveTask}</ScrollView></View>:null}
+                {urgent === "true" ? <View style={{height:400,marginTop:"10%"}}><ScrollView style={{ flex: 1 }}>{UrgentTask}</ScrollView></View> :null}
+                {backlogs === "true" ? <View style={{height:400,marginTop:"10%"}}><ScrollView style={{ flex: 1 }}>{BacklogsTask}</ScrollView></View>:null}
+                {future === "true" ? <View style={{height:400,marginTop:"10%"}}><ScrollView style={{ flex: 1 }}>{FutureTask}</ScrollView></View>:null}
+
+
+                {/* <FAB title="+" placement="right" size="large" color="#18aefa" style={{ marginRight: 40 }} onPress={newTask} /> */}
             </View>
             <View >
                 <FooterComponent email={mail} ></FooterComponent>
@@ -315,30 +374,43 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         backgroundColor: "#fff"
     },
-    LowPrior:{
-        width:'96%',
-        height:90,
-        marginLeft:"2%",
-        marginRight:"2%",
-        backgroundColor:"#91bf80",
-        marginTop:"2%",
-        borderRadius:15},
-    highPrior:{
-        width:'96%',
-        height:90,
-        marginLeft:"2%",
-        marginRight:"2%",
-        backgroundColor:"#eb614d",
-        marginTop:"2%",
-        borderRadius:15},
-    MidPrior:{
-        width:'96%',
-        height:90,
-        marginLeft:"2%",
-        marginRight:"2%",
-        backgroundColor:"#d9b566",
-        marginTop:"2%",
-        borderRadius:15},
+    middleContent: {
+        ...Platform.select({
+            ios: {
+                height: 600
+            },
+            android: {
+                height: 650
+            }
+        })
+    },
+    LowPrior: {
+        width: '96%',
+        height: 90,
+        marginLeft: "2%",
+        marginRight: "2%",
+        backgroundColor: "#91bf80",
+        marginTop: "2%",
+        borderRadius: 15
+    },
+    highPrior: {
+        width: '96%',
+        height: 90,
+        marginLeft: "2%",
+        marginRight: "2%",
+        backgroundColor: "#eb614d",
+        marginTop: "2%",
+        borderRadius: 15
+    },
+    MidPrior: {
+        width: '96%',
+        height: 90,
+        marginLeft: "2%",
+        marginRight: "2%",
+        backgroundColor: "#d9b566",
+        marginTop: "2%",
+        borderRadius: 15
+    },
     bimage: {
         flex: 1,
         justifyContent: "center"
@@ -449,50 +521,50 @@ const styles = StyleSheet.create({
         marginTop: "0.5%",
     },
     ltext: {
-        
+
         marginTop: 15,
         fontSize: 18,
-        marginLeft:5,
-        fontWeight:"600",
-        color:"#000"
+        marginLeft: 5,
+        fontWeight: "600",
+        color: "#000"
     },
     stext: {
         marginTop: 15,
         fontSize: 12,
-        marginLeft:5,
-        fontWeight:"600",
-        color:"#000"
+        marginLeft: 5,
+        fontWeight: "600",
+        color: "#000"
     },
-    midstext:{
+    midstext: {
         marginTop: 15,
         fontSize: 12,
-        marginLeft:5,
-        fontWeight:"600",
-        color:"#936E00"
+        marginLeft: 5,
+        fontWeight: "600",
+        color: "#936E00"
     },
     midltext: {
         color: "#000",
         marginTop: 15,
         fontSize: 18,
-        marginLeft:5,
-        fontWeight:"600",
-        color:"#936E00"
+        marginLeft: 5,
+        fontWeight: "600",
+        color: "#936E00"
     },
     midltext1: {
         marginTop: 18,
         fontSize: 12,
-        marginLeft:"40%",
-        fontWeight:"600",
-        color:"#936E00",
+        marginLeft: "40%",
+        fontWeight: "600",
+        color: "#936E00",
         textDecorationLine: "underline",
 
     },
     ltext1: {
         marginTop: 18,
         fontSize: 12,
-        marginLeft:"40%",
-        fontWeight:"600",
-        color:"#000",
+        marginLeft: "40%",
+        fontWeight: "600",
+        color: "#000",
         textDecorationLine: "underline",
 
     },
